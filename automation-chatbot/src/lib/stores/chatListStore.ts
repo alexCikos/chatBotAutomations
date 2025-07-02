@@ -1,1 +1,0 @@
-// chat list store placeholder
