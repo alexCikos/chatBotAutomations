@@ -8,27 +8,24 @@
   const chatId = 'chat-001';
   const userId = 'user-abc';
 
+  // Container element used for scrolling
   let scrollEl: HTMLDivElement;
-  let lastMessageCount = 0;
 
-  // Scroll to bottom on mount
+  // Scroll to the newest message when the component first loads
   onMount(() => {
     scrollToBottom();
   });
 
-  // Scroll to bottom when a new message is added
+  // Whenever the list of messages changes, scroll to the latest entry
   $effect(() => {
-    let unsubscribe = messages.subscribe(currentMessages => {
-      if (currentMessages.length > lastMessageCount) {
-        lastMessageCount = currentMessages.length;
-        scrollToBottom();
-      }
-    });
-    return unsubscribe;
+    $messages; // track store updates
+    scrollToBottom();
   });
 
   async function scrollToBottom() {
+    // Wait for DOM to update before measuring height
     await tick();
+    // Scroll on the next animation frame to ensure layout is ready
     requestAnimationFrame(() => {
       if (scrollEl) {
         scrollEl.scrollTop = scrollEl.scrollHeight;
@@ -36,6 +33,7 @@
     });
   }
 
+  // Called when the user clicks send
   function handleSend(message: string) {
     sendMessage(message, chatId, userId);
   }
