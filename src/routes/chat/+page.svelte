@@ -1,7 +1,7 @@
 <script lang="ts">
-  // Import the main chat component
+  // The Chat component contains the full interface
   import Chat from '$lib/components/chat/Chat.svelte';
 </script>
 
-<!-- Chat page simply renders the Chat component -->
+<!-- Simply render the chat -->
 <Chat />
