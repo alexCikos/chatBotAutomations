@@ -1,6 +1,7 @@
 <script lang="ts">
   // Svelte helpers used for scrolling
-  import { tick, afterUpdate } from 'svelte';
+  // `tick` lets us wait for the DOM to update before scrolling
+  import { tick } from 'svelte';
 
   // Shared message store and helper to send a new message
   import { messages, sendMessage } from '$lib/stores/messages';
@@ -20,12 +21,22 @@
   // keep the newest messages in view
   let scrollEl: HTMLDivElement;
 
-  // Automatically scroll to the bottom after each update
-  afterUpdate(scrollToBottom);
+  // Track the length of the messages so we can detect when a
+  // new one is added
+  let lastLen = 0;
+
+  // Scroll down only when a message is added. This keeps typing
+  // responsive because we avoid running on every keypress
+  $: if ($messages.length !== lastLen) {
+    lastLen = $messages.length;
+    scrollToBottom();
+  }
+
+  // Helper that waits for the DOM to update before scrolling
   async function scrollToBottom() {
     await tick();
     if (scrollEl) {
-      // Set scroll position to the bottom of the list
+      // Move the list to the bottom so the newest message is visible
       scrollEl.scrollTop = scrollEl.scrollHeight;
     }
   }
