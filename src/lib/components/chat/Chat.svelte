@@ -2,12 +2,15 @@
   // Svelte helpers used for scrolling
   import { tick } from 'svelte';
 
-  // Chat message store and helper function
+  // Shared message store and helper to send a new message
   import { messages, sendMessage } from '$lib/stores/messages';
 
   // Child components
   import MessageItem from './MessageItem.svelte';
   import MessageInput from './MessageInput.svelte';
+
+  // Simple icons from Lucide
+  import { Menu, RefreshCw } from 'lucide-svelte';
 
   // Hard coded identifiers for now. In a real app
   // these would come from the router or a store.
@@ -31,38 +34,27 @@
   }
 </script>
 
-<!-- Full screen chat container -->
-<div class="h-screen flex flex-col max-w-screen-md mx-auto rounded-xl shadow-md bg-background border border-border">
-  <!-- Header with avatar, title and actions -->
-  <div class="flex items-center justify-between px-4 py-3 border-b border-border">
-    <div class="flex items-center gap-2">
-      <!-- Placeholder avatar -->
-      <div class="w-8 h-8 rounded-full bg-warning-500 flex items-center justify-center font-bold text-neutral-950">B</div>
-      <span class="font-bold">Restaurant Bot</span>
-    </div>
-    <div class="flex items-center gap-2 text-muted-foreground">
-      <button class="btn-icon" aria-label="Refresh">🔄</button>
-      <button class="btn-icon" aria-label="Expand">⤢</button>
-    </div>
+<!-- Outer container for the chat -->
+<div class="h-screen flex flex-col max-w-screen-md mx-auto">
+  <!-- Top bar with simple actions -->
+  <div class="flex items-center justify-between px-4 py-3 backdrop-blur-lg bg-white/5 border-b border-white/10">
+    <button aria-label="Menu" class="p-2 text-white/60 hover:text-white">
+      <Menu class="w-5 h-5" />
+    </button>
+    <button aria-label="Refresh" class="p-2 text-white/60 hover:text-white">
+      <RefreshCw class="w-5 h-5" />
+    </button>
   </div>
 
-  <!-- Date label -->
-  <div class="flex items-center gap-2 px-4 py-1 text-sm text-muted-foreground">
-    <div class="flex-1 h-px bg-border"></div>
-    <span>{new Date().toLocaleDateString()}</span>
-    <div class="flex-1 h-px bg-border"></div>
-  </div>
-
-  <!-- Messages list -->
-  <div class="overflow-y-auto px-4 py-2 flex-1" bind:this={listEl}>
+  <!-- Scrollable messages area -->
+  <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4" bind:this={listEl}>
     {#each $messages as message (message.id)}
       <MessageItem {message} />
     {/each}
   </div>
 
-  <!-- Input and footer -->
-  <div class="sticky bottom-0 z-10 bg-background px-4 py-3 space-y-2">
+  <!-- Message input bar -->
+  <div class="sticky bottom-0 z-10 backdrop-blur-lg bg-white/5 px-4 py-4">
     <MessageInput on:send={handleSend} />
-    <div class="text-center text-xs text-muted-foreground">Powered by sendbird</div>
   </div>
 </div>
