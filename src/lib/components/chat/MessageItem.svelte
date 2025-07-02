@@ -9,24 +9,27 @@
 
   // Format timestamp for display
   function timeLabel(date: string) {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return new Date(date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 </script>
 
 <!-- Wrapper aligns left or right depending on the sender -->
 <div class="flex my-2" class:justify-end={isUser} class:justify-start={!isUser}>
-  <div class="flex items-end" class:flex-row-reverse={isUser}>
-    <!-- Bubble -->
+  <div class="max-w-[75%] flex flex-col" class:items-end={isUser} class:items-start={!isUser}>
+    <!-- Bubble showing the message content -->
     <div
-      class="px-4 py-2 rounded-full max-w-[80%] break-words text-sm sm:text-base shadow"
-      class:bg-neutral-800={isUser}
-      class:text-neutral-50={isUser}
-      class:bg-warning-200={!isUser}
-      class:text-neutral-900={!isUser}
+      class="px-4 py-2 rounded-xl border border-white/10 backdrop-blur-lg break-words"
+      class:bg-slate-800={isUser}
+      class:text-white={isUser}
+      class:bg-yellow-400={!isUser}
+      class:text-black={!isUser}
     >
       {message.content}
     </div>
-    <!-- Timestamp -->
-    <span class="px-2 text-xs text-neutral-500">{timeLabel(message.createdAt)}</span>
+    <!-- Optional time label -->
+    <span class="mt-1 text-xs text-white/40">{timeLabel(message.createdAt)}</span>
   </div>
 </div>
