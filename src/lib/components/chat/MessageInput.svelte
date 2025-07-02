@@ -1,6 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
 
+  // We use Skeleton's styling classes on native elements
+
   // Dispatcher emits the input string when a message is sent
   const dispatch = createEventDispatcher<{ send: string }>();
 
@@ -35,7 +37,7 @@
 <!-- Input area with textarea and send button -->
 <div class="flex gap-2">
   <textarea
-    class="flex-1 textarea rounded-md p-2 border bg-background text-sm sm:text-base"
+    class="flex-1 rounded-md p-2 border bg-background text-sm sm:text-base"
     bind:value={input}
     on:input={resize}
     on:keydown={handleKeydown}
