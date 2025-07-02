@@ -1,0 +1,1 @@
+<!-- MessageItem component placeholder -->

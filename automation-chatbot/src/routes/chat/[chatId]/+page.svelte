@@ -1,0 +1,1 @@
+<!-- chat detail page placeholder -->

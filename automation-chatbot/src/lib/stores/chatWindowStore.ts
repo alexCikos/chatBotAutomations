@@ -1,0 +1,1 @@
+// chat window store placeholder
