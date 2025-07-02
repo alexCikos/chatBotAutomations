@@ -1,1 +1,0 @@
-// quote tool api placeholder

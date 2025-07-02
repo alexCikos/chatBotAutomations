@@ -1,1 +1,0 @@
-<!-- ChatListItem component placeholder -->

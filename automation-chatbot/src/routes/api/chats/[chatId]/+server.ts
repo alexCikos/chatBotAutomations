@@ -1,1 +1,0 @@
-// chat detail api placeholder
