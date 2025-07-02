@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import { Send } from 'lucide-svelte';
 
   // Dispatcher emits the input string when a message is sent
   const dispatch = createEventDispatcher<{ send: string }>();
@@ -34,21 +33,20 @@
 </script>
 
 <!-- Input area with textarea and send button -->
-<div class="flex items-end gap-2">
+<div class="flex gap-4">
   <textarea
-    class="flex-1 resize-none rounded-full bg-slate-800 border border-white/10 text-sm text-white px-4 py-2 placeholder-white/40 focus:outline-none"
+    class="border-8 border-black px-4 py-3 w-full font-plex focus:outline-none resize-none"
     bind:value={input}
+    bind:this={textareaEl}
     on:input={resize}
     on:keydown={handleKeydown}
     rows="1"
-    bind:this={textareaEl}
-    placeholder="Type your message"
+    placeholder="TYPE HERE"
   ></textarea>
   <button
-    class="p-2 text-white hover:text-yellow-400"
-    aria-label="Send"
+    class="bg-black text-white font-bold uppercase px-6 py-3 border-8 border-black hover:bg-white hover:text-black"
     on:click={send}
   >
-    <Send class="w-5 h-5" />
+    SEND
   </button>
 </div>

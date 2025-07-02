@@ -3,19 +3,17 @@
   import Chat from '$lib/components/chat/Chat.svelte';
 </script>
 
-<!-- Load the Inter font -->
+<!-- Load IBM Plex Mono font for the brutalist look -->
 <svelte:head>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap"
     rel="stylesheet"
   />
 </svelte:head>
 
-<!-- Wrap everything in a gradient background -->
-<main
-  class="font-inter bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#0c1425] text-white min-h-screen"
->
+<!-- Brutalist white on black layout -->
+<main class="min-h-screen flex flex-col bg-white text-black font-plex">
   <Chat />
 </main>
