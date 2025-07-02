@@ -25,3 +25,7 @@ It is designed for **small business users** (like tradies or personal assistants
 - The assistant receives input and responds using tool APIs
 - Conversations and tool results are processed via SvelteKit backend routes
 - The system is designed to be easily extended with new automation tools
+
+## Comments
+
+- Always add very easy to read comments
