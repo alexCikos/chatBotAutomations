@@ -33,9 +33,10 @@
 </script>
 
 <!-- Input area with textarea and send button -->
-<div class="flex gap-4">
+<!-- Flex keeps textarea and button vertically centered -->
+<div class="flex items-center gap-4">
   <textarea
-    class="border-8 border-black px-4 py-3 w-full font-plex focus:outline-none resize-none"
+    class="border-8 border-black px-4 py-3 w-full font-plex focus:outline-none resize-none leading-none align-middle min-h-[48px]"
     bind:value={input}
     bind:this={textareaEl}
     on:input={resize}
