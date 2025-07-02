@@ -17,19 +17,20 @@
 </script>
 
 <!-- Wrapper aligns left or right depending on the sender -->
-<div class="flex my-2" class:justify-end={isUser} class:justify-start={!isUser}>
-  <div class="max-w-[75%] flex flex-col" class:items-end={isUser} class:items-start={!isUser}>
-    <!-- Bubble showing the message content -->
+<div class="flex mb-4" class:justify-end={isUser} class:justify-start={!isUser}>
+  <div class="flex flex-col" class:items-end={isUser} class:items-start={!isUser}>
+    <!-- Bubble with sender label and message -->
     <div
-      class="px-4 py-2 rounded-xl border border-white/10 backdrop-blur-lg break-words"
-      class:bg-slate-800={isUser}
+      class="border-8 border-black p-4 max-w-[70%] break-words"
+      class:bg-black={isUser}
       class:text-white={isUser}
-      class:bg-yellow-400={!isUser}
+      class:bg-white={!isUser}
       class:text-black={!isUser}
     >
-      {message.content}
+      <span class="text-sm uppercase font-bold">{isUser ? 'YOU' : 'BOT'}</span>
+      <div class="mt-2">{message.content}</div>
     </div>
-    <!-- Optional time label -->
-    <span class="mt-1 text-xs text-white/40">{timeLabel(message.createdAt)}</span>
+    <!-- Timestamp below -->
+    <span class="text-xs mt-1">{timeLabel(message.createdAt)}</span>
   </div>
 </div>
