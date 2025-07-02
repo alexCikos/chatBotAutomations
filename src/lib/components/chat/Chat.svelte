@@ -1,6 +1,6 @@
 <script lang="ts">
   // Svelte helpers used for scrolling
-  import { tick } from 'svelte';
+  import { tick, afterUpdate } from 'svelte';
 
   // Shared message store and helper to send a new message
   import { messages, sendMessage } from '$lib/stores/messages';
@@ -18,13 +18,16 @@
 
   // Reference to the scrolling container so we can
   // keep the newest messages in view
-  let listEl: HTMLDivElement;
+  let scrollEl: HTMLDivElement;
 
-  // Scroll to the bottom whenever messages change
-  $: scrollToBottom();
+  // Automatically scroll to the bottom after each update
+  afterUpdate(scrollToBottom);
   async function scrollToBottom() {
     await tick();
-    listEl?.scrollTo({ top: listEl.scrollHeight, behavior: 'smooth' });
+    if (scrollEl) {
+      // Set scroll position to the bottom of the list
+      scrollEl.scrollTop = scrollEl.scrollHeight;
+    }
   }
 
   // Forward sent messages to the store
@@ -39,7 +42,7 @@
   <div class="text-3xl font-bold uppercase border-b-8 border-black p-4">BRUTAL BOT</div>
 
   <!-- Scrollable messages area -->
-  <div class="overflow-y-auto flex-1 p-4 space-y-4" bind:this={listEl}>
+  <div class="overflow-y-auto flex-1 p-4 space-y-4" bind:this={scrollEl}>
     {#each $messages as message (message.id)}
       <MessageItem {message} />
     {/each}

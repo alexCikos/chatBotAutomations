@@ -19,16 +19,16 @@
 <!-- Wrapper aligns left or right depending on the sender -->
 <div class="flex mb-4" class:justify-end={isUser} class:justify-start={!isUser}>
   <div class="flex flex-col" class:items-end={isUser} class:items-start={!isUser}>
-    <!-- Bubble with sender label and message -->
+    <!-- Bubble containing the message text -->
     <div
-      class="border-8 border-black p-4 max-w-[70%] break-words"
+      class="border-8 border-black p-4 max-w-[80%] break-words whitespace-pre-wrap"
       class:bg-black={isUser}
       class:text-white={isUser}
       class:bg-white={!isUser}
       class:text-black={!isUser}
     >
-      <span class="text-sm uppercase font-bold">{isUser ? 'YOU' : 'BOT'}</span>
-      <div class="mt-2">{message.content}</div>
+      <!-- Actual chat content -->
+      <div class="text-base">{message.content}</div>
     </div>
     <!-- Timestamp below -->
     <span class="text-xs mt-1">{timeLabel(message.createdAt)}</span>
