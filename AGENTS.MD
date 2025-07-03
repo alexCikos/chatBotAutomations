@@ -29,3 +29,7 @@ It is designed for **small business users** (like tradies or personal assistants
 ## Comments
 
 - Always add very easy to read comments
+
+## Consideration
+
+YOU ARE IN RUNE MODE, PLEASE USE THEM
