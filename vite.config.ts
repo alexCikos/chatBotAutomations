@@ -4,4 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [sveltekit(), tailwindcss()],
+  server: {
+    watch: {
+      ignored: ["**/db.json"], // ✅ Ignore db.json for hot reload
+    },
+  },
 });
