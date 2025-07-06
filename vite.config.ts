@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [sveltekit(), tailwindcss()],
   server: {
     watch: {
-      ignored: ["**/db.json"], // ✅ Ignore db.json for hot reload
+      ignored: ["**/messages.json", "**/chats.json"], // ✅ Ignore db.json for hot reload
     },
   },
 });
