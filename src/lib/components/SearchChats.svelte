@@ -22,11 +22,13 @@
     {#if $searchTerm.trim() !== ""}
       <ul class="w-full space-y-2">
         {#each $filteredChats as chat}
-          <li
-            class="bg-zinc-800 rounded-lg p-3 hover:bg-zinc-700 cursor-pointer"
+          <a
+            class="w-full bg-zinc-800 rounded-lg p-3 hover:bg-zinc-700 cursor-pointer block"
+            href={"/chat/" + chat.id}
+            title={chat.title}
           >
             {chat.title}
-          </li>
+          </a>
         {/each}
 
         {#if $filteredChats.length === 0}
