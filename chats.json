@@ -1,10 +1,16 @@
 {
   "chats": [
     {
-      "id": "1b9cea70-4395-4146-b1b9-b8107720ffbf",
+      "id": "60887d02-dfb9-42fd-9fc0-67f1c0a62231",
       "userId": "alex-123",
-      "title": "burnt",
-      "createdAt": "2025-07-06T14:31:33.696Z"
+      "title": "death",
+      "createdAt": "2025-07-07T13:09:58.128Z"
+    },
+    {
+      "id": "d742a283-8f98-4165-8699-a3f20b386d4e",
+      "userId": "alex-123",
+      "title": "burt",
+      "createdAt": "2025-07-07T13:10:07.111Z"
     }
   ]
 }

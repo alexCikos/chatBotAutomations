@@ -1,28 +1,29 @@
-import { writable } from "svelte/store";
+import { writable, derived } from "svelte/store";
 import { browser } from "$app/environment";
 import type { Chat } from "$lib/types";
 
-/**
- * Store for managing the state of the chat window, including messages and input content.
- */
 function createSideBarStore() {
   const chats = writable<Chat[]>([]);
   const content = writable("");
+  const searchTerm = writable("");
 
-  /**
-   * Loads all chats for the given user ID.
-   */
+  const filteredChats = derived(
+    [chats, searchTerm],
+    ([$chats, $searchTerm]) => {
+      const term = $searchTerm.trim().toLowerCase();
+      if (!term) return [];
+
+      return $chats.filter((chat) => chat.title.toLowerCase().startsWith(term));
+    }
+  );
+
   async function loadChats(userID: string) {
     if (!browser) return;
-
     const res = await fetch(`/api/chats/users/${userID}`);
     const data = await res.json();
     chats.set(data.chats);
   }
 
-  /**
-   * Creates a new chat for a user.
-   */
   async function createChat(userID: string, titleValue: string) {
     const newChat: Chat = {
       id: crypto.randomUUID(),
@@ -41,7 +42,7 @@ function createSideBarStore() {
 
     if (!res.ok) {
       console.error("Failed to create chat");
-      await loadChats(userID); // fallback reload
+      await loadChats(userID);
     }
 
     const data = await res.json();
@@ -49,9 +50,6 @@ function createSideBarStore() {
     return createdChat;
   }
 
-  /**
-   * Deletes a chat by ID from the backend and updates the local store.
-   */
   async function deleteChat(chatId: string) {
     const res = await fetch(`/api/chats/${chatId}`, {
       method: "DELETE",
@@ -68,9 +66,11 @@ function createSideBarStore() {
   return {
     chats,
     content,
+    searchTerm, // ✅ exposed
+    filteredChats, // ✅ exposed
     loadChats,
     createChat,
-    deleteChat, // ✅ added
+    deleteChat,
   };
 }
 

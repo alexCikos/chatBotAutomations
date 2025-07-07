@@ -3,6 +3,12 @@
   import { userStore } from "$lib/stores/userStore";
   import { goto } from "$app/navigation";
 
+  interface Props {
+    onClose?: () => void; // ✅ prop callback
+  }
+
+  let { onClose }: Props = $props();
+
   const { content, createChat } = sideBarChatsStore;
   const userId = $userStore?.id;
 
@@ -16,7 +22,12 @@
 
     $content = "";
 
+    onClose?.(); // ✅ call parent callback
     goto(`/chat/${chat.id}`);
+  }
+
+  function closeModal() {
+    onClose?.(); // ✅ call parent callback
   }
 </script>
 
@@ -41,6 +52,13 @@
           class="px-4 py-2 bg-black text-white rounded text-sm"
         >
           Create
+        </button>
+        <button
+          type="button"
+          class="px-4 py-2 bg-red-500 text-white rounded text-sm"
+          onclick={closeModal}
+        >
+          Cancel
         </button>
       </div>
     </form>
