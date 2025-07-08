@@ -1,9 +1,9 @@
 <script lang="ts">
-  import ChatInterface from "$lib/components/ChatInterface.svelte";
   import ChatSideBar from "$lib/components/ChatSideBar.svelte";
+  import ChatInterface from "$lib/components/ChatInterface.svelte";
 </script>
 
-<main class="flex h-[100dvh] w-full overflow-hidden font-mono">
+<div class="flex h-full w-full overflow-hidden font-mono">
   <ChatSideBar />
   <ChatInterface />
-</main>
+</div>

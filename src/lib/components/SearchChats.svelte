@@ -1,7 +1,15 @@
 <script lang="ts">
   import { sideBarChatsStore } from "$lib/stores/sideBarChatsStore";
+  import { goto } from "$app/navigation";
+  import type { Chat } from "$lib/types";
 
   const { filteredChats, searchTerm } = sideBarChatsStore;
+
+  function handleEnter(chats: Chat[]) {
+    if (chats.length > 0) {
+      goto(`/chat/${chats[0].id}`);
+    }
+  }
 </script>
 
 <div class="w-full bg-black text-white flex items-center justify-center py-10">
@@ -14,6 +22,7 @@
       <input
         type="text"
         placeholder="Find your chats..."
+        onkeydown={(e) => e.key === "Enter" && handleEnter($filteredChats)}
         bind:value={$searchTerm}
         class="bg-transparent text-white placeholder-gray-400 outline-none text-base w-full"
       />

@@ -38,7 +38,7 @@
   }
 </script>
 
-<main class="flex flex-col h-[100dvh] w-full overflow-x-hidden font-mono">
+<main class="flex flex-col h-full w-full overflow-x-hidden font-mono">
   <!-- Message list container -->
   <div
     bind:this={scrollEl}

@@ -1,21 +1,31 @@
 import { writable, derived } from "svelte/store";
 import { browser } from "$app/environment";
 import type { Chat } from "$lib/types";
+import Fuse from "fuse.js";
 
 function createSideBarStore() {
   const chats = writable<Chat[]>([]);
   const content = writable("");
   const searchTerm = writable("");
 
-  const filteredChats = derived(
-    [chats, searchTerm],
-    ([$chats, $searchTerm]) => {
-      const term = $searchTerm.trim().toLowerCase();
-      if (!term) return [];
+  // Fuse setup will be regenerated when chats change
+  const fuse = writable<Fuse<Chat> | null>(null);
 
-      return $chats.filter((chat) => chat.title.toLowerCase().startsWith(term));
-    }
-  );
+  chats.subscribe(($chats) => {
+    fuse.set(
+      new Fuse($chats, {
+        keys: ["title"],
+        threshold: 0.3,
+      })
+    );
+  });
+
+  const filteredChats = derived([fuse, searchTerm], ([$fuse, $searchTerm]) => {
+    const term = $searchTerm.trim();
+    if (!$fuse || !term) return [];
+
+    return $fuse.search(term).map((result) => result.item);
+  });
 
   async function loadChats(userID: string) {
     if (!browser) return;
@@ -66,8 +76,8 @@ function createSideBarStore() {
   return {
     chats,
     content,
-    searchTerm, // ✅ exposed
-    filteredChats, // ✅ exposed
+    searchTerm,
+    filteredChats,
     loadChats,
     createChat,
     deleteChat,

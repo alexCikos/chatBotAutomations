@@ -46,7 +46,7 @@
   }
 </script>
 
-<main class="w-1/5 min-h-screen bg-gray-900 text-white flex flex-col">
+<main class="w-1/5 h-full bg-gray-900 text-white flex flex-col">
   <!-- Header Section -->
   <section
     class="flex items-center justify-between px-4 py-3 border-b border-gray-700"
