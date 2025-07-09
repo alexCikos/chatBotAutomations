@@ -4,6 +4,7 @@
   import NewChatModule from "$lib/components/NewChatModule.svelte";
   import { userStore } from "$lib/stores/userStore";
   import { goto } from "$app/navigation";
+  import Icon from "@iconify/svelte";
 
   const { chats, content, loadChats, createChat, deleteChat } =
     sideBarChatsStore;
@@ -46,19 +47,23 @@
   }
 </script>
 
-<main class="w-1/5 h-full bg-gray-900 text-white flex flex-col">
+<main class="w-1/5 h-full bg-[#161616] text-white flex flex-col">
   <!-- Header Section -->
   <section
     class="flex items-center justify-between px-4 py-3 border-b border-gray-700"
   >
     <button
-      class="hover:text-gray-400"
+      class="hover:text-gray-400 flex items-center gap-2"
       onclick={() => (newChatModalOpen = true)}
       aria-label="New Chat"
     >
+      <Icon icon="lucide:plus" class="w-4 h-4" />
       New Chat
     </button>
-    <button aria-label="Close Sidebar">X</button>
+
+    <button aria-label="Close Sidebar" class="hover:text-gray-400">
+      <Icon icon="lucide:chevron-left" class="w-5 h-5" />
+    </button>
   </section>
 
   <!-- Main content area with chat list -->
@@ -67,16 +72,19 @@
       <div
         class="flex items-center justify-between px-4 py-2 hover:bg-gray-800 border-b border-gray-800"
       >
-        <a href={"/chat/" + chat.id} class="truncate flex-1 hover:text-gray-400"
-          >{chat.title}</a
+        <a
+          href={"/chat/" + chat.id}
+          class="truncate flex-1 hover:text-gray-400"
         >
+          {chat.title}
+        </a>
         <button
           onclick={() => handleDelete(chat.id)}
           class="ml-2 text-red-400 hover:text-red-600 text-xs"
           aria-label="Delete chat"
           title="Delete chat"
         >
-          ✕
+          <Icon icon="lucide:trash-2" class="w-4 h-4" />
         </button>
       </div>
     {/each}
@@ -86,8 +94,9 @@
   <section class="px-4 py-3 border-t border-gray-700 hover:bg-gray-800">
     <a
       href="/history"
-      class="block text-sm text-gray-300 hover:text-gray-400 cursor-pointer"
+      class="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-400 cursor-pointer"
     >
+      <Icon icon="lucide:search" class="w-4 h-4 text-gray-400" />
       Search Chats
     </a>
   </section>

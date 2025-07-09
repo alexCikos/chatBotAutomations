@@ -43,7 +43,9 @@
   }
 </script>
 
-<div class="flex items-center justify-center h-screen bg-black text-white px-4">
+<div
+  class="flex items-center justify-center h-screen bg-black text-white px-4 font-mono"
+>
   <div class="max-w-xl w-full text-center space-y-8">
     <h1
       class="text-4xl md:text-5xl font-mono font-bold uppercase tracking-wide"

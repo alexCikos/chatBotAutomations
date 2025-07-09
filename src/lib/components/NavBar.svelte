@@ -10,7 +10,7 @@
 </script>
 
 <nav
-  class="z-50 flex items-center justify-between px-6 py-4 bg-black text-white shadow-md h-16"
+  class="z-50 flex items-center justify-between px-6 py-4 text-white shadow-md h-16 bg-[#161616] border-b border-gray-700 font-mono"
 >
   <!-- Left: Logo -->
   <a

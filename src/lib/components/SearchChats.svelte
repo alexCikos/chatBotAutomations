@@ -12,12 +12,14 @@
   }
 </script>
 
-<div class="w-full bg-black text-white flex items-center justify-center py-10">
+<div
+  class="w-full bg-[#212121] text-white flex items-center justify-center py-10"
+>
   <div class="flex flex-col items-center space-y-6 w-4/5 max-w-2xl">
     <h1 class="text-2xl md:text-3xl font-medium">Search your chats</h1>
 
     <div
-      class="bg-[#40414F] rounded-xl px-4 py-3 flex items-center gap-3 w-full"
+      class="bg-[#2E2E2E] rounded-xl px-4 py-3 flex items-center gap-3 w-full"
     >
       <input
         type="text"
