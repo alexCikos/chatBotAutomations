@@ -128,19 +128,19 @@
 
       <button 
         aria-label="Collapse Sidebar" 
-        class="ml-2 text-gray-300 hover:text-white transition-colors duration-150 p-1"
+        class="text-gray-300 hover:text-white transition-colors duration-150 p-1 w-8 h-8 flex items-center justify-center"
         onclick={toggleSidebar}
         title="Collapse Sidebar"
       >
-        <Icon icon="lucide:chevron-left" class="w-5 h-5" />
+        <Icon icon="lucide:chevron-left" class="w-4 h-4" />
       </button>
     </section>
 
     <!-- Main content area with chat list -->
-    <div class="sidebar-content">
+    <div class="sidebar-content flex-1 overflow-y-auto">
       {#each $chats as chat}
         <div
-          class="flex items-center justify-between px-4 py-2 hover:bg-gray-800 border-b border-gray-800"
+          class="flex items-center justify-between px-4 py-3 hover:bg-gray-800 border-b border-gray-800"
         >
           <a
             href={"/chat/" + chat.id}
@@ -150,7 +150,7 @@
           </a>
           <button
             onclick={() => handleDelete(chat.id)}
-            class="ml-2 text-red-400 hover:text-red-600 text-xs transition-colors duration-150"
+            class="text-red-400 hover:text-red-600 transition-colors duration-150 p-1 w-8 h-8 flex items-center justify-center"
             aria-label="Delete chat"
             title="Delete chat"
           >
