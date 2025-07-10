@@ -3,7 +3,6 @@
 
 /* Import Design System */
 @import "./styles/design-tokens.css";
-@import "./styles/components.css";
 
 /* Import Skeleton UI (optional - can be removed if not needed) */
 @import "@skeletonlabs/skeleton";

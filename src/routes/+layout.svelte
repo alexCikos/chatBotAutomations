@@ -19,3 +19,10 @@
 <main class="main-layout">
   {@render children()}
 </main>
+
+<style>
+  .main-layout {
+    height: calc(100dvh - 4rem);
+    overflow: hidden;
+  }
+</style>

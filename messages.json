@@ -15,22 +15,6 @@
       "role": "user",
       "content": "test",
       "createdAt": "2025-07-10T14:14:29.570Z"
-    },
-    {
-      "id": "a528d9c0-b87b-4f05-beeb-e4a0463b1fda",
-      "chatId": "7b546c6d-9430-48dc-a9ec-e54a80f19539",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "ttes",
-      "createdAt": "2025-07-10T14:31:41.766Z"
-    },
-    {
-      "id": "2ae22212-0a78-4a78-8a7c-a84371d52c9e",
-      "chatId": "7b546c6d-9430-48dc-a9ec-e54a80f19539",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "hshshs",
-      "createdAt": "2025-07-10T14:31:42.976Z"
     }
   ]
 }

@@ -233,6 +233,50 @@
     overflow: hidden;
   }
 
+  /* Button Components */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-weight: 500;
+    transition: colors 150ms;
+    outline: none;
+    opacity: 1;
+    cursor: pointer;
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px black;
+  }
+
+  .btn-sm {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+
+  .btn-ghost {
+    background: transparent;
+    color: rgb(209 213 219);
+    border: 1px solid transparent;
+  }
+
+  .btn-ghost:hover {
+    background: rgb(55 65 81);
+  }
+
+  .btn-ghost:focus {
+    box-shadow: 0 0 0 2px white;
+  }
+
   /* Responsive behavior */
   @media (max-width: 768px) {
     .sidebar-expanded {

@@ -9,3 +9,10 @@
     <ChatInterface />
   </div>
 </div>
+
+<style>
+  .content-layout {
+    display: flex;
+    height: 100%;
+  }
+</style>

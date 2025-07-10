@@ -9,3 +9,10 @@
     <SearchChats />
   </div>
 </main>
+
+<style>
+  .content-layout {
+    display: flex;
+    height: 100%;
+  }
+</style>
