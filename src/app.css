@@ -1,4 +1,53 @@
+/* Import Tailwind CSS */
 @import "tailwindcss";
+
+/* Import Design System */
+@import "./styles/design-tokens.css";
+@import "./styles/components.css";
+
+/* Import Skeleton UI (optional - can be removed if not needed) */
 @import "@skeletonlabs/skeleton";
 @import "@skeletonlabs/skeleton/optional/presets";
 @import "@skeletonlabs/skeleton/themes/cerberus";
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-mono);
+  background-color: var(--surface-default);
+  color: var(--text-primary);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--state-hover);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-primary) var(--bg-primary);
+}

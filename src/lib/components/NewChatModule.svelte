@@ -6,9 +6,10 @@
 
   interface Props {
     onClose?: () => void; // ✅ prop callback
+    isAtHome?: boolean; // ✅ prop to check if at home
   }
 
-  let { onClose }: Props = $props();
+  let { onClose, isAtHome }: Props = $props();
 
   const { content, createChat } = sideBarChatsStore;
   const userId = $userStore?.id;
@@ -28,45 +29,208 @@
   }
 
   function closeModal() {
-    onClose?.(); // ✅ call parent callback
+    if (isAtHome) {
+      goto("/"); // ✅ redirect to home if at home
+    } else {
+      onClose?.(); // ✅ call parent callback
+    }
   }
 </script>
 
 <div
-  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+  class="modal-backdrop"
+  onclick={closeModal}
+  onkeydown={(e) => e.key === "Escape" && closeModal()}
+  role="dialog"
+  aria-modal="true"
+  tabindex="-1"
 >
-  <div class="bg-[#2E2E2E] text-white rounded-lg shadow-xl p-6 w-full max-w-md">
-    <div class="mb-4">
-      <h2 class="text-xl font-semibold tracking-wide">New Chat</h2>
-    </div>
-
-    <form onsubmit={handleSubmit} class="space-y-4">
-      <input
-        type="text"
-        bind:value={$content}
-        placeholder="Enter chat title..."
-        class="w-full text-black border border-0 bg-white rounded px-3 py-2 font-mono"
-      />
-      <div class="flex justify-end gap-2">
-        <!-- Cancel First -->
-        <button
-          type="button"
-          class="px-4 py-2 bg-red-500 text-white rounded text-sm flex items-center gap-2 hover:bg-red-600"
-          onclick={closeModal}
-        >
-          <Icon icon="lucide:x" class="w-4 h-4" />
-          Cancel
-        </button>
-
-        <!-- Create Second (Primary Action) -->
-        <button
-          type="submit"
-          class="px-4 py-2 bg-black text-white rounded text-sm flex items-center gap-2 hover:bg-gray-900"
-        >
-          <Icon icon="lucide:plus" class="w-4 h-4" />
-          Create
-        </button>
+  <div
+    class="modal"
+    onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.stopPropagation()}
+    role="document"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">New Chat</h2>
       </div>
-    </form>
+
+      <form onsubmit={handleSubmit} class="modal-form">
+        <div class="modal-body">
+          <input
+            type="text"
+            bind:value={$content}
+            placeholder="Enter chat title..."
+            class="modal-input"
+          />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick={closeModal}>
+            <Icon icon="lucide:x" class="w-4 h-4" />
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            disabled={!$content.trim()}
+          >
+            <Icon icon="lucide:plus" class="w-4 h-4" />
+            Create
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
+
+<style>
+  .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+  }
+
+  .modal-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    margin: 0;
+    text-align: center;
+  }
+
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .modal-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .modal-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: #3b82f6;
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: #2563eb;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .modal-backdrop {
+      padding: 1rem;
+    }
+
+    .modal-footer {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      justify-content: center;
+    }
+  }
+</style>

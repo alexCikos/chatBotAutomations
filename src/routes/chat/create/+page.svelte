@@ -2,4 +2,4 @@
   import NewChatModule from "$lib/components/NewChatModule.svelte";
 </script>
 
-<NewChatModule />
+<NewChatModule isAtHome={true} />

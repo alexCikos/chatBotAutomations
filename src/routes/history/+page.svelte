@@ -3,7 +3,9 @@
   import SearchChats from "$lib/components/SearchChats.svelte";
 </script>
 
-<main class="flex h-[100dvh] w-full overflow-hidden font-mono">
+<main class="content-layout">
   <ChatSideBar />
-  <SearchChats />
+  <div class="flex-1">
+    <SearchChats />
+  </div>
 </main>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { sideBarChatsStore } from "$lib/stores/sideBarChatsStore";
   import { chatWindowStore } from "$lib/stores/chatWindowStore";
+  import { sidebarStore } from "$lib/stores/sidebarStore";
   import NewChatModule from "$lib/components/NewChatModule.svelte";
   import { userStore } from "$lib/stores/userStore";
   import { goto } from "$app/navigation";
@@ -19,20 +20,6 @@
 
   let newChatModalOpen: boolean = $state(false);
 
-  async function handleSubmit(event: SubmitEvent) {
-    event.preventDefault();
-    const value = $content.trim();
-    if (!value || typeof userId !== "string") return;
-
-    const chat = await createChat(userId, value);
-    if (!chat) return;
-
-    $content = "";
-    newChatModalOpen = false;
-
-    goto(`/chat/${chat.id}`);
-  }
-
   async function handleDelete(chatId: string) {
     const confirmed = confirm("Delete this chat and its messages?");
     if (!confirmed) return;
@@ -45,63 +32,218 @@
       goto("/history");
     }
   }
+
+  function handleNewChatClick() {
+    if ($sidebarStore) {
+      // If collapsed, expand sidebar and then open modal
+      sidebarStore.expand();
+      setTimeout(() => {
+        newChatModalOpen = true;
+      }, 150); // Wait for transition
+    } else {
+      newChatModalOpen = true;
+    }
+  }
+
+  function handleSearchClick() {
+    if ($sidebarStore) {
+      // If collapsed, expand sidebar and navigate to search
+      sidebarStore.expand();
+      setTimeout(() => {
+        goto("/history");
+      }, 150); // Wait for transition
+    } else {
+      goto("/history");
+    }
+  }
+
+  function toggleSidebar() {
+    sidebarStore.toggle();
+  }
 </script>
 
-<main class="w-1/5 h-full bg-[#161616] text-white flex flex-col">
-  <!-- Header Section -->
-  <section
-    class="flex items-center justify-between px-4 py-3 border-b border-gray-700"
-  >
-    <button
-      class="hover:text-gray-400 flex items-center gap-2"
-      onclick={() => (newChatModalOpen = true)}
-      aria-label="New Chat"
-    >
-      <Icon icon="lucide:plus" class="w-4 h-4" />
-      New Chat
-    </button>
+<!-- Mobile Backdrop (only show on mobile when expanded) -->
+{#if !$sidebarStore}
+  <button
+    class="md:hidden fixed inset-0 bg-black/50 z-30 border-none cursor-default"
+    onclick={toggleSidebar}
+    onkeydown={(e) => e.key === 'Enter' && toggleSidebar()}
+    aria-label="Close sidebar"
+    type="button"
+  ></button>
+{/if}
 
-    <button aria-label="Close Sidebar" class="hover:text-gray-400">
-      <Icon icon="lucide:chevron-left" class="w-5 h-5" />
-    </button>
-  </section>
-
-  <!-- Main content area with chat list -->
-  <div class="flex-1 overflow-y-auto">
-    {#each $chats as chat}
-      <div
-        class="flex items-center justify-between px-4 py-2 hover:bg-gray-800 border-b border-gray-800"
+<!-- Main Sidebar Container -->
+<main 
+  class="{$sidebarStore ? 'sidebar-collapsed' : 'sidebar-expanded'} 
+         h-full bg-neutral-900 border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out
+         {!$sidebarStore ? 'md:relative md:z-auto z-40' : ''}"
+>
+  {#if $sidebarStore}
+    <!-- Collapsed State: Icon Strip -->
+    <div class="collapsed-sidebar">
+      <!-- Expand Button -->
+      <button
+        class="icon-btn-collapsed"
+        onclick={toggleSidebar}
+        aria-label="Expand Sidebar"
+        title="Expand Sidebar"
       >
-        <a
-          href={"/chat/" + chat.id}
-          class="truncate flex-1 hover:text-gray-400"
-        >
-          {chat.title}
-        </a>
-        <button
-          onclick={() => handleDelete(chat.id)}
-          class="ml-2 text-red-400 hover:text-red-600 text-xs"
-          aria-label="Delete chat"
-          title="Delete chat"
-        >
-          <Icon icon="lucide:trash-2" class="w-4 h-4" />
-        </button>
-      </div>
-    {/each}
-  </div>
+        <Icon icon="lucide:menu" class="w-5 h-5" />
+      </button>
 
-  <!-- Footer pinned to bottom -->
-  <section class="px-4 py-3 border-t border-gray-700 hover:bg-gray-800">
-    <a
-      href="/history"
-      class="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-400 cursor-pointer"
-    >
-      <Icon icon="lucide:search" class="w-4 h-4 text-gray-400" />
-      Search Chats
-    </a>
-  </section>
+      <!-- New Chat Icon -->
+      <button
+        class="icon-btn-collapsed"
+        onclick={handleNewChatClick}
+        aria-label="New Chat"
+        title="New Chat"
+      >
+        <Icon icon="lucide:plus" class="w-5 h-5" />
+      </button>
+
+      <!-- Search Icon -->
+      <button
+        class="icon-btn-collapsed"
+        onclick={handleSearchClick}
+        aria-label="Search Chats"
+        title="Search Chats"
+      >
+        <Icon icon="lucide:search" class="w-5 h-5" />
+      </button>
+    </div>
+  {:else}
+    <!-- Expanded State: Full Sidebar -->
+    
+    <!-- Header Section -->
+    <section class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+      <button
+        class="btn btn-sm btn-ghost flex items-center gap-2"
+        onclick={handleNewChatClick}
+        aria-label="New Chat"
+      >
+        <Icon icon="lucide:plus" class="w-4 h-4" />
+        New Chat
+      </button>
+
+      <button 
+        aria-label="Collapse Sidebar" 
+        class="ml-2 text-gray-300 hover:text-white transition-colors duration-150 p-1"
+        onclick={toggleSidebar}
+        title="Collapse Sidebar"
+      >
+        <Icon icon="lucide:chevron-left" class="w-5 h-5" />
+      </button>
+    </section>
+
+    <!-- Main content area with chat list -->
+    <div class="sidebar-content">
+      {#each $chats as chat}
+        <div
+          class="flex items-center justify-between px-4 py-2 hover:bg-gray-800 border-b border-gray-800"
+        >
+          <a
+            href={"/chat/" + chat.id}
+            class="truncate flex-1 text-gray-300 hover:text-white transition-colors duration-150"
+          >
+            {chat.title}
+          </a>
+          <button
+            onclick={() => handleDelete(chat.id)}
+            class="ml-2 text-red-400 hover:text-red-600 text-xs transition-colors duration-150"
+            aria-label="Delete chat"
+            title="Delete chat"
+          >
+            <Icon icon="lucide:trash-2" class="w-4 h-4" />
+          </button>
+        </div>
+      {/each}
+    </div>
+
+    <!-- Footer pinned to bottom -->
+    <section class="px-4 py-3 border-t border-gray-800 hover:bg-gray-800">
+      <button
+        onclick={handleSearchClick}
+        class="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-300 cursor-pointer transition-colors duration-150 w-full text-left"
+        aria-label="Search Chats"
+      >
+        <Icon icon="lucide:search" class="w-4 h-4 text-gray-400" />
+        Search Chats
+      </button>
+    </section>
+  {/if}
 </main>
 
 {#if newChatModalOpen}
   <NewChatModule onClose={() => (newChatModalOpen = false)} />
 {/if}
+
+<style>
+  .sidebar-expanded {
+    width: 20%; /* Same as w-1/5 */
+    min-width: 250px;
+  }
+
+  .sidebar-collapsed {
+    width: 60px;
+    min-width: 60px;
+  }
+
+  .collapsed-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    gap: 1rem;
+  }
+
+  .icon-btn-collapsed {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: transparent;
+    color: rgb(209 213 219);
+    transition: all 150ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .icon-btn-collapsed:hover {
+    background-color: rgb(31 41 55);
+    color: white;
+  }
+
+  .icon-btn-collapsed:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(23 23 23);
+  }
+
+  /* Ensure smooth transitions for width changes */
+  .sidebar-expanded,
+  .sidebar-collapsed {
+    transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out;
+  }
+
+  /* Hide scrollbar in collapsed state */
+  .sidebar-collapsed {
+    overflow: hidden;
+  }
+
+  /* Responsive behavior */
+  @media (max-width: 768px) {
+    .sidebar-expanded {
+      width: 280px;
+      position: absolute;
+      z-index: 30;
+      height: 100%;
+    }
+    
+    .sidebar-collapsed {
+      width: 60px;
+    }
+  }
+</style>

@@ -3,7 +3,9 @@
   import ChatInterface from "$lib/components/ChatInterface.svelte";
 </script>
 
-<div class="flex h-full w-full overflow-hidden font-mono">
+<div class="content-layout">
   <ChatSideBar />
-  <ChatInterface />
+  <div class="flex-1">
+    <ChatInterface />
+  </div>
 </div>

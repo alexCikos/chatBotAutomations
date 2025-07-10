@@ -16,6 +16,6 @@
 <NavBar businessName={userName} logoUrl="/logo.png" />
 
 <!-- Main layout wrapper -->
-<main class="h-[calc(100dvh-4rem)] overflow-hidden">
+<main class="main-layout">
   {@render children()}
 </main>

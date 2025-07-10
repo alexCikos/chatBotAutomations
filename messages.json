@@ -1,22 +1,6 @@
 {
   "messages": [
     {
-      "id": "dfdd2300-de4f-45b5-b4a1-1c3460a5f2a1",
-      "chatId": "eb907f5b-c8a5-4971-9271-158f7fe2bae7",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "helllo",
-      "createdAt": "2025-07-08T11:37:11.670Z"
-    },
-    {
-      "id": "3cfffb7c-82fc-484d-bb71-9c2b1464133f",
-      "chatId": "eb907f5b-c8a5-4971-9271-158f7fe2bae7",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "hellllllll",
-      "createdAt": "2025-07-08T11:37:13.563Z"
-    },
-    {
       "id": "66fc6256-f6e3-4c91-8047-33046b2c5a25",
       "chatId": "60887d02-dfb9-42fd-9fc0-67f1c0a62231",
       "userId": "alex-123",
@@ -167,6 +151,22 @@
       "role": "user",
       "content": "heheh",
       "createdAt": "2025-07-09T12:27:09.854Z"
+    },
+    {
+      "id": "8bed4c43-243b-4229-854d-121025076ab5",
+      "chatId": "60887d02-dfb9-42fd-9fc0-67f1c0a62231",
+      "userId": "alex-123",
+      "role": "user",
+      "content": "hehehhe",
+      "createdAt": "2025-07-10T12:31:01.997Z"
+    },
+    {
+      "id": "05c98fc2-540b-48b1-8c1f-9892b2b1791f",
+      "chatId": "60887d02-dfb9-42fd-9fc0-67f1c0a62231",
+      "userId": "alex-123",
+      "role": "user",
+      "content": "hehhe",
+      "createdAt": "2025-07-10T12:31:03.187Z"
     }
   ]
 }
