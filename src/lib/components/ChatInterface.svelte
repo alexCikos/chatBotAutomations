@@ -57,6 +57,12 @@
   <div class="background-grid"></div>
   <div class="background-gradient"></div>
 
+  <!-- Tool Status Info -->
+  <ToolStatus 
+    selectedTool={selectedTool} 
+    onClear={clearToolSelection}
+  />
+
   <!-- Message list container -->
   <div bind:this={scrollEl} class="messages-container">
     {#each $messages as msg}
@@ -69,12 +75,6 @@
       </div>
     {/each}
   </div>
-
-  <!-- Tool Status Info -->
-  <ToolStatus 
-    selectedTool={selectedTool} 
-    onClear={clearToolSelection}
-  />
 
   <!-- Message input form -->
   <form onsubmit={handleSubmit} class="chat-input-container">
@@ -150,6 +150,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 2rem;
+    padding-top: 5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -318,6 +319,7 @@
   @media (max-width: 768px) {
     .messages-container {
       padding: 1rem;
+      padding-top: 4rem;
     }
 
     .chat-input-container {
@@ -341,6 +343,7 @@
   @media (max-width: 480px) {
     .messages-container {
       padding: 0.75rem;
+      padding-top: 3.5rem;
     }
 
     .message-bubble-user,

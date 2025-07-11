@@ -42,8 +42,8 @@
   // Close dropdown when clicking outside
   $effect(() => {
     if (isOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
     }
   });
 </script>
@@ -67,7 +67,7 @@
         <Icon icon="lucide:wrench" class="w-4 h-4" />
         <span>Select Tool</span>
       </div>
-      
+
       <div class="tool-list">
         <!-- No Tool Option -->
         <button
@@ -75,19 +75,17 @@
           class="tool-option {selectedTool === null ? 'selected' : ''}"
           onclick={() => selectTool(null)}
         >
-          <div class="tool-option-icon">
-            <Icon icon="lucide:x" class="w-4 h-4" />
-          </div>
           <div class="tool-option-content">
             <div class="tool-option-name">No Tool</div>
-            <div class="tool-option-description">Chat without using any tool</div>
+            <div class="tool-option-description">
+              Chat without using any tool
+            </div>
           </div>
         </button>
 
         <!-- Loading State -->
         {#if $loading}
           <div class="tool-loading">
-            <Icon icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
             <span>Loading tools...</span>
           </div>
         {/if}
@@ -95,7 +93,6 @@
         <!-- Error State -->
         {#if $error}
           <div class="tool-error">
-            <Icon icon="lucide:alert-circle" class="w-4 h-4" />
             <span>Error loading tools</span>
           </div>
         {/if}
@@ -104,12 +101,11 @@
         {#each $tools as tool}
           <button
             type="button"
-            class="tool-option {selectedTool?.toolId === tool.toolId ? 'selected' : ''}"
+            class="tool-option {selectedTool?.toolId === tool.toolId
+              ? 'selected'
+              : ''}"
             onclick={() => selectTool(tool)}
           >
-            <div class="tool-option-icon">
-              <Icon icon="lucide:tool" class="w-4 h-4" />
-            </div>
             <div class="tool-option-content">
               <div class="tool-option-name">{tool.toolName}</div>
               <div class="tool-option-description">{tool.toolDescription}</div>
@@ -120,7 +116,6 @@
         <!-- No Tools Available -->
         {#if !$loading && !$error && $tools.length === 0}
           <div class="tool-empty">
-            <Icon icon="lucide:inbox" class="w-4 h-4" />
             <span>No tools available</span>
           </div>
         {/if}
@@ -183,14 +178,18 @@
     bottom: calc(100% + 8px);
     left: 0;
     min-width: 320px;
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(15, 15, 15, 0.95) 0%,
+      rgba(26, 26, 26, 0.95) 100%
+    );
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     backdrop-filter: blur(20px);
-    box-shadow: 
+    box-shadow:
       0 10px 25px -5px rgba(0, 0, 0, 0.5),
       0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    z-index: 10000;
+    z-index: 1000000;
     animation: slideIn 0.2s ease-out;
   }
 
@@ -203,7 +202,8 @@
     color: white;
     font-size: 0.875rem;
     font-weight: 500;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   .tool-list {
@@ -215,7 +215,6 @@
   .tool-option {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
     width: 100%;
     padding: 0.75rem 1rem;
     background: transparent;
@@ -224,7 +223,8 @@
     text-align: left;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   .tool-option:hover {
@@ -236,23 +236,8 @@
     color: #93c5fd;
   }
 
-  .tool-option-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    flex-shrink: 0;
-  }
-
-  .tool-option.selected .tool-option-icon {
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-  }
-
   .tool-option-content {
+    padding: 0.75rem;
     flex: 1;
     min-width: 0;
   }
@@ -286,7 +271,8 @@
     color: #9ca3af;
     font-size: 0.875rem;
     justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   .tool-error {
@@ -303,6 +289,7 @@
       transform: translateY(0);
     }
   }
+
 
   :global(.animate-spin) {
     animation: spin 1s linear infinite;
@@ -321,8 +308,24 @@
   @media (max-width: 768px) {
     .tool-dropdown {
       min-width: 280px;
-      right: 0;
-      left: auto;
+      left: 1rem;
+      right: 1rem;
+      width: calc(100vw - 2rem);
+      max-width: 350px;
+      margin: 0 auto;
+      animation: slideIn 0.2s ease-out;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .tool-dropdown {
+      min-width: 250px;
+      left: 0.75rem;
+      right: 0.75rem;
+      width: calc(100vw - 1.5rem);
+      max-width: 300px;
+      margin: 0 auto;
+      animation: slideIn 0.2s ease-out;
     }
   }
 
