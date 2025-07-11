@@ -6,6 +6,8 @@
   import { userStore } from "$lib/stores/userStore";
   import { goto } from "$app/navigation";
   import Icon from "@iconify/svelte";
+  import DeleteConfirmModal from "$lib/components/DeleteConfirmModal.svelte";
+  import { toastStore } from "$lib/stores/toastStore";
 
   const { chats, content, loadChats, createChat, deleteChat } =
     sideBarChatsStore;
@@ -19,18 +21,60 @@
   });
 
   let newChatModalOpen: boolean = $state(false);
+  let activeDropdownId: string | null = $state(null);
+  let deleteModalOpen: boolean = $state(false);
+  let chatToDelete: string | null = $state(null);
+  let chatTitleToDelete: string | null = $state(null);
 
-  async function handleDelete(chatId: string) {
-    const confirmed = confirm("Delete this chat and its messages?");
-    if (!confirmed) return;
+  function handleDeleteClick(chatId: string) {
+    const chat = $chats.find(c => c.id === chatId);
+    chatToDelete = chatId;
+    chatTitleToDelete = chat?.title || null;
+    deleteModalOpen = true;
+    activeDropdownId = null;
+  }
 
-    await deleteChat(chatId);
+  async function handleDeleteConfirm() {
+    if (!chatToDelete) return;
+
+    const chatTitle = chatTitleToDelete;
+    await deleteChat(chatToDelete);
     chatWindowStore.clear();
+    deleteModalOpen = false;
+    chatToDelete = null;
+    chatTitleToDelete = null;
+
+    // Show success toast
+    toastStore.add({
+      message: `Chat${chatTitle ? ` "${chatTitle}"` : ''} deleted successfully`,
+      type: 'success',
+      duration: 3000
+    });
 
     // Optional: if current chat was deleted, redirect to safe route
-    if (window.location.pathname === `/chat/${chatId}`) {
+    if (window.location.pathname === `/chat/${chatToDelete}`) {
       goto("/history");
     }
+  }
+
+  function handleDeleteCancel() {
+    deleteModalOpen = false;
+    chatToDelete = null;
+    chatTitleToDelete = null;
+  }
+
+  function handleEdit(chatId: string) {
+    // TODO: Implement edit functionality
+    console.log("Edit chat:", chatId);
+    activeDropdownId = null;
+  }
+
+  function toggleDropdown(chatId: string) {
+    activeDropdownId = activeDropdownId === chatId ? null : chatId;
+  }
+
+  function closeDropdown() {
+    activeDropdownId = null;
   }
 
   function handleNewChatClick() {
@@ -91,6 +135,15 @@
     aria-label="Close sidebar"
     role="button"
     tabindex="0"
+  ></div>
+{/if}
+
+<!-- Click outside to close dropdown -->
+{#if activeDropdownId}
+  <div
+    class="fixed inset-0 z-40"
+    onclick={closeDropdown}
+    aria-hidden="true"
   ></div>
 {/if}
 
@@ -173,14 +226,34 @@
           >
             {chat.title}
           </a>
-          <button
-            onclick={() => handleDelete(chat.id)}
-            class="text-red-400 hover:text-red-600 transition-colors duration-150 p-1 w-8 h-8 flex items-center justify-center"
-            aria-label="Delete chat"
-            title="Delete chat"
-          >
-            <Icon icon="lucide:trash-2" class="w-4 h-4" />
-          </button>
+          <div class="relative">
+            <button
+              onclick={() => toggleDropdown(chat.id)}
+              class="text-gray-400 hover:text-white transition-colors duration-150 p-1 w-8 h-8 flex items-center justify-center"
+              aria-label="Chat options"
+              title="Chat options"
+            >
+              <Icon icon="lucide:more-horizontal" class="w-4 h-4" />
+            </button>
+            {#if activeDropdownId === chat.id}
+              <div class="absolute right-0 top-8 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 min-w-[120px]">
+                <button
+                  onclick={() => handleEdit(chat.id)}
+                  class="w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150 flex items-center gap-2"
+                >
+                  <Icon icon="lucide:edit" class="w-4 h-4" />
+                  Edit
+                </button>
+                <button
+                  onclick={() => handleDeleteClick(chat.id)}
+                  class="w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors duration-150 flex items-center gap-2"
+                >
+                  <Icon icon="lucide:trash-2" class="w-4 h-4" />
+                  Delete
+                </button>
+              </div>
+            {/if}
+          </div>
         </div>
       {/each}
     </div>
@@ -201,6 +274,14 @@
 
 {#if newChatModalOpen}
   <NewChatModule onClose={() => (newChatModalOpen = false)} />
+{/if}
+
+{#if deleteModalOpen}
+  <DeleteConfirmModal
+    onConfirm={handleDeleteConfirm}
+    onCancel={handleDeleteCancel}
+    chatTitle={chatTitleToDelete}
+  />
 {/if}
 
 <style>

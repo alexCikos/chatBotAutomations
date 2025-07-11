@@ -1,20 +1,3 @@
 {
-  "messages": [
-    {
-      "id": "ef74b07c-2f68-4df3-aeda-26ee1c78d809",
-      "chatId": "c1c6ae7b-82ef-4839-b0f8-212366a1fde3",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "hhhhhhhheeeee",
-      "createdAt": "2025-07-11T02:07:45.897Z"
-    },
-    {
-      "id": "b1d57e2c-874a-41bc-9e6d-c9da63eb7923",
-      "chatId": "4140b39a-7689-4373-9a76-4799bad19b88",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "hehehe",
-      "createdAt": "2025-07-11T02:07:51.476Z"
-    }
-  ]
+  "messages": []
 }

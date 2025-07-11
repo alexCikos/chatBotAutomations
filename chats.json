@@ -1,16 +1,10 @@
 {
   "chats": [
     {
-      "id": "4140b39a-7689-4373-9a76-4799bad19b88",
+      "id": "74184d04-70bf-4bd8-9aae-2f02fe558565",
       "userId": "alex-123",
       "title": "test",
-      "createdAt": "2025-07-11T02:07:05.520Z"
-    },
-    {
-      "id": "c1c6ae7b-82ef-4839-b0f8-212366a1fde3",
-      "userId": "alex-123",
-      "title": "hello 4",
-      "createdAt": "2025-07-11T02:07:34.743Z"
+      "createdAt": "2025-07-11T10:50:50.122Z"
     }
   ]
 }

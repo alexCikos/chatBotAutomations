@@ -3,6 +3,7 @@
   import "../app.css";
   import { userStore } from "$lib/stores/userStore";
   import NavBar from "$lib/components/NavBar.svelte";
+  import ToastContainer from "$lib/components/ToastContainer.svelte";
 
   userStore.set({
     id: "alex-123",
@@ -19,6 +20,9 @@
 <main class="main-layout">
   {@render children()}
 </main>
+
+<!-- Toast notifications -->
+<ToastContainer />
 
 <style>
   .main-layout {
