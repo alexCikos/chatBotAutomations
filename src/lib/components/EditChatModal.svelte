@@ -2,19 +2,30 @@
   import Icon from "@iconify/svelte";
 
   interface Props {
-    onConfirm: () => void;
+    onConfirm: (newTitle: string) => void;
     onCancel: () => void;
-    chatTitle?: string | null;
+    currentTitle: string;
   }
 
-  let { onConfirm, onCancel, chatTitle }: Props = $props();
+  let { onConfirm, onCancel, currentTitle }: Props = $props();
+  let newTitle = $state(currentTitle);
 
   function handleConfirm() {
-    onConfirm();
+    const trimmedTitle = newTitle.trim();
+    if (trimmedTitle && trimmedTitle !== currentTitle) {
+      onConfirm(trimmedTitle);
+    } else {
+      onCancel();
+    }
   }
 
   function handleCancel() {
     onCancel();
+  }
+
+  function handleSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    handleConfirm();
   }
 
   function handleEscape(e: KeyboardEvent) {
@@ -40,32 +51,36 @@
   >
     <div class="modal-content">
       <div class="modal-header">
-        <div class="warning-icon">
-          <Icon icon="lucide:alert-triangle" class="w-8 h-8" />
+        <h2 class="modal-title">Edit Chat</h2>
+        <p class="modal-subtitle">Update the chat title</p>
+      </div>
+
+      <form onsubmit={handleSubmit} class="modal-form">
+        <div class="modal-body">
+          <input
+            type="text"
+            bind:value={newTitle}
+            placeholder="Enter new chat title..."
+            class="modal-input"
+          />
         </div>
-        <h2 class="modal-title">Delete Chat</h2>
-      </div>
 
-      <div class="modal-body">
-        <p class="modal-text">
-          Are you sure you want to delete this chat{chatTitle
-            ? ` "${chatTitle}"`
-            : ""}? This action cannot be undone and all messages will be
-          permanently removed.
-        </p>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick={handleCancel}>
+            <Icon icon="lucide:x" class="w-4 h-4" />
+            Cancel
+          </button>
 
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick={handleCancel}>
-          <Icon icon="lucide:x" class="w-4 h-4" />
-          Cancel
-        </button>
-
-        <button type="button" class="btn btn-danger" onclick={handleConfirm}>
-          <Icon icon="lucide:trash-2" class="w-4 h-4" />
-          Delete
-        </button>
-      </div>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            disabled={!newTitle.trim() || newTitle.trim() === currentTitle}
+          >
+            <Icon icon="lucide:check" class="w-4 h-4" />
+            Save Changes
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -108,15 +123,11 @@
   }
 
   .modal-content {
-    background: linear-gradient(
-      135deg,
-      rgba(15, 15, 15, 0.95) 0%,
-      rgba(26, 26, 26, 0.95) 100%
-    );
+    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
     padding: 2rem;
-    box-shadow:
+    box-shadow: 
       0 25px 50px -12px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.05),
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -129,18 +140,13 @@
   }
 
   .modal-content::before {
-    content: "";
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(239, 68, 68, 0.5),
-      transparent
-    );
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
   }
 
   .modal-header {
@@ -149,45 +155,69 @@
     position: relative;
   }
 
-  .warning-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    color: #f59e0b;
-  }
-
   .modal-title {
     font-size: 1.5rem;
     font-weight: 600;
     color: white;
-    margin: 0;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
+    margin: 0 0 0.5rem 0;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  .modal-body {
-    margin-bottom: 2rem;
+  .modal-subtitle {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
-  .modal-text {
-    color: #d1d5db;
-    font-size: 1rem;
-    line-height: 1.6;
-    margin: 0;
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .modal-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    color: white;
+    font-size: 1.125rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    backdrop-filter: blur(10px);
+  }
+
+  .modal-input:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(59, 130, 246, 0.05);
+    box-shadow: 
+      0 0 0 1px rgba(59, 130, 246, 0.3),
+      0 8px 32px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .modal-input::placeholder {
+    color: #64748b;
+    font-weight: 400;
   }
 
   .modal-footer {
     display: flex;
     gap: 1rem;
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   /* Button Components */
@@ -195,8 +225,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     font-weight: 500;
     transition: all 0.3s ease;
     outline: none;
@@ -211,7 +240,7 @@
   }
 
   .btn::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: 0;
     background: inherit;
@@ -231,23 +260,23 @@
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
   }
 
-  .btn-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  .btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     color: white;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    box-shadow:
-      0 4px 16px rgba(239, 68, 68, 0.3),
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 
+      0 4px 16px rgba(59, 130, 246, 0.3),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
-  .btn-danger:hover:not(:disabled) {
+  .btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow:
-      0 8px 32px rgba(239, 68, 68, 0.4),
+    box-shadow: 
+      0 8px 32px rgba(59, 130, 246, 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
-  .btn-danger:active {
+  .btn-primary:active {
     transform: translateY(0);
   }
 
@@ -285,8 +314,13 @@
       font-size: 1.25rem;
     }
 
-    .modal-text {
-      font-size: 0.9rem;
+    .modal-subtitle {
+      font-size: 0.8rem;
+    }
+
+    .modal-input {
+      font-size: 1rem;
+      padding: 0.875rem 1rem;
     }
 
     .modal-footer {

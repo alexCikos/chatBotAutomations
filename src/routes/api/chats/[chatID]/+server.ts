@@ -22,6 +22,37 @@ const getMessageDb = async () => {
   return db;
 };
 
+export const PUT: RequestHandler = async ({ params, request }) => {
+  const chatID = params.chatID;
+  if (!chatID) return json({ error: "Missing chatID" }, { status: 400 });
+
+  const body = await request.json();
+  const { title } = body;
+
+  if (!title || typeof title !== "string" || !title.trim()) {
+    return json({ error: "Title is required and must be a non-empty string" }, { status: 400 });
+  }
+
+  const chatDb = await getChatDb();
+  
+  // Find the chat to update
+  const chatIndex = chatDb.data.chats.findIndex((c) => c.id === chatID);
+  
+  if (chatIndex === -1) {
+    return json({ error: "Chat not found" }, { status: 404 });
+  }
+
+  // Update the chat title
+  chatDb.data.chats[chatIndex].title = title.trim();
+  
+  await chatDb.write();
+
+  return json({
+    success: true,
+    chat: chatDb.data.chats[chatIndex],
+  });
+};
+
 export const DELETE: RequestHandler = async ({ params }) => {
   const chatID = params.chatID;
   if (!chatID) return json({ error: "Missing chatID" }, { status: 400 });

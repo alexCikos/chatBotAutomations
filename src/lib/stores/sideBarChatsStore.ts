@@ -1,4 +1,4 @@
-import { writable, derived } from "svelte/store";
+import { writable, derived, get } from "svelte/store";
 import { browser } from "$app/environment";
 import type { Chat } from "$lib/types";
 import Fuse from "fuse.js";
@@ -73,6 +73,40 @@ function createSideBarStore() {
     chats.update((chatList) => chatList.filter((chat) => chat.id !== chatId));
   }
 
+  async function editChat(chatId: string, newTitle: string) {
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) return null;
+
+    // Get current chat list to find the userId if needed
+    const currentChatList = get(chats);
+
+    // Optimistically update the UI
+    chats.update((chatList) =>
+      chatList.map((chat) =>
+        chat.id === chatId ? { ...chat, title: trimmedTitle } : chat
+      )
+    );
+
+    const res = await fetch(`/api/chats/${chatId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: trimmedTitle }),
+    });
+
+    if (!res.ok) {
+      console.error("Failed to edit chat");
+      // Revert the optimistic update by reloading chats
+      const currentChat = currentChatList.find((chat) => chat.id === chatId);
+      if (currentChat) {
+        loadChats(currentChat.userId);
+      }
+      return null;
+    }
+
+    const data = await res.json();
+    return data.chat as Chat;
+  }
+
   return {
     chats,
     content,
@@ -81,6 +115,7 @@ function createSideBarStore() {
     loadChats,
     createChat,
     deleteChat,
+    editChat,
   };
 }
 

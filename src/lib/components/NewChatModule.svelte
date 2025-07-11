@@ -3,6 +3,7 @@
   import { userStore } from "$lib/stores/userStore";
   import { goto } from "$app/navigation";
   import Icon from "@iconify/svelte";
+  import { toastStore } from "$lib/stores/toastStore";
 
   interface Props {
     onClose?: () => void; // ✅ prop callback
@@ -23,6 +24,13 @@
     if (!chat) return;
 
     $content = "";
+
+    // Show success toast
+    toastStore.add({
+      message: `Chat "${chat.title}" created successfully`,
+      type: 'success',
+      duration: 3000
+    });
 
     onClose?.(); // ✅ call parent callback
     goto(`/chat/${chat.id}`);

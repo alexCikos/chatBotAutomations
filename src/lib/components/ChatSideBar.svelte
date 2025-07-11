@@ -7,9 +7,10 @@
   import { goto } from "$app/navigation";
   import Icon from "@iconify/svelte";
   import DeleteConfirmModal from "$lib/components/DeleteConfirmModal.svelte";
+  import EditChatModal from "$lib/components/EditChatModal.svelte";
   import { toastStore } from "$lib/stores/toastStore";
 
-  const { chats, content, loadChats, createChat, deleteChat } =
+  const { chats, content, loadChats, createChat, deleteChat, editChat } =
     sideBarChatsStore;
 
   const userId = $userStore?.id;
@@ -25,6 +26,9 @@
   let deleteModalOpen: boolean = $state(false);
   let chatToDelete: string | null = $state(null);
   let chatTitleToDelete: string | null = $state(null);
+  let editModalOpen: boolean = $state(false);
+  let chatToEdit: string | null = $state(null);
+  let chatTitleToEdit: string | null = $state(null);
 
   function handleDeleteClick(chatId: string) {
     const chat = $chats.find(c => c.id === chatId);
@@ -38,6 +42,8 @@
     if (!chatToDelete) return;
 
     const chatTitle = chatTitleToDelete;
+    const deletedChatId = chatToDelete; // Store the ID before setting to null
+    
     await deleteChat(chatToDelete);
     chatWindowStore.clear();
     deleteModalOpen = false;
@@ -52,7 +58,7 @@
     });
 
     // Optional: if current chat was deleted, redirect to safe route
-    if (window.location.pathname === `/chat/${chatToDelete}`) {
+    if (window.location.pathname === `/chat/${deletedChatId}`) {
       goto("/history");
     }
   }
@@ -63,10 +69,38 @@
     chatTitleToDelete = null;
   }
 
-  function handleEdit(chatId: string) {
-    // TODO: Implement edit functionality
-    console.log("Edit chat:", chatId);
+  function handleEditClick(chatId: string) {
+    const chat = $chats.find(c => c.id === chatId);
+    chatToEdit = chatId;
+    chatTitleToEdit = chat?.title || null;
+    editModalOpen = true;
     activeDropdownId = null;
+  }
+
+  async function handleEditConfirm(newTitle: string) {
+    if (!chatToEdit) return;
+
+    const oldTitle = chatTitleToEdit;
+    const result = await editChat(chatToEdit, newTitle);
+    
+    if (result) {
+      // Show success toast
+      toastStore.add({
+        message: `Chat title updated to "${newTitle}"`,
+        type: 'success',
+        duration: 3000
+      });
+    }
+
+    editModalOpen = false;
+    chatToEdit = null;
+    chatTitleToEdit = null;
+  }
+
+  function handleEditCancel() {
+    editModalOpen = false;
+    chatToEdit = null;
+    chatTitleToEdit = null;
   }
 
   function toggleDropdown(chatId: string) {
@@ -238,7 +272,7 @@
             {#if activeDropdownId === chat.id}
               <div class="absolute right-0 top-8 bg-gray-800 border border-gray-700 rounded-md shadow-lg z-50 min-w-[120px]">
                 <button
-                  onclick={() => handleEdit(chat.id)}
+                  onclick={() => handleEditClick(chat.id)}
                   class="w-full px-4 py-2 text-left text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150 flex items-center gap-2"
                 >
                   <Icon icon="lucide:edit" class="w-4 h-4" />
@@ -281,6 +315,14 @@
     onConfirm={handleDeleteConfirm}
     onCancel={handleDeleteCancel}
     chatTitle={chatTitleToDelete}
+  />
+{/if}
+
+{#if editModalOpen}
+  <EditChatModal
+    onConfirm={handleEditConfirm}
+    onCancel={handleEditCancel}
+    currentTitle={chatTitleToEdit || ""}
   />
 {/if}
 

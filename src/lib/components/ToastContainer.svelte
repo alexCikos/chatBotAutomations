@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { toastStore } from "$lib/stores/toastStore";
+  import { toastStore, type Toast } from "$lib/stores/toastStore";
   import Icon from "@iconify/svelte";
 
-  let toasts = $state([]); 
+  let toasts: Toast[] = $state([]); 
   
   // Use $effect to subscribe to the store
   $effect(() => {
