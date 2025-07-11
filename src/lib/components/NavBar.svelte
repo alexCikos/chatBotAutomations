@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import Icon from "@iconify/svelte";
+  import { sidebarStore } from "$lib/stores/sidebarStore";
 
   interface Props {
     businessName: string;
@@ -9,6 +10,10 @@
 
   let { businessName }: Props = $props();
   let logoUrl: string = "/logo.png"; // fallback
+
+  function toggleSidebar() {
+    sidebarStore.toggle();
+  }
 </script>
 
 <nav class="navbar">
@@ -17,10 +22,19 @@
 
   <!-- Content -->
   <div class="navbar-content">
-    <!-- Left: Logo and Brand -->
-    <a href="/" class="navbar-brand">
-      <img src={logoUrl} alt="Logo" class="brand-logo" />
-    </a>
+    <!-- Left: Mobile Menu Button and Logo -->
+    <div class="navbar-left">
+      <button
+        class="mobile-menu-btn"
+        onclick={toggleSidebar}
+        aria-label="Toggle Sidebar"
+      >
+        <Icon icon="lucide:menu" class="w-5 h-5" />
+      </button>
+      <a href="/" class="navbar-brand">
+        <img src={logoUrl} alt="Logo" class="brand-logo" />
+      </a>
+    </div>
 
     <!-- Right: Welcome and Avatar -->
     <div class="navbar-user">
@@ -66,6 +80,30 @@
     padding: 0 2rem;
   }
 
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .mobile-menu-btn {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
   .brand-logo {
     width: 90px;
     height: 90px;
@@ -102,6 +140,10 @@
   @media (max-width: 768px) {
     .navbar-content {
       padding: 0 1rem;
+    }
+
+    .mobile-menu-btn {
+      display: flex; /* Show on mobile */
     }
 
     .welcome-text {

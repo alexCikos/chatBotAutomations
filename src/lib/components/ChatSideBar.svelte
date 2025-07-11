@@ -42,6 +42,10 @@
       }, 150); // Wait for transition
     } else {
       newChatModalOpen = true;
+      // Auto-close sidebar on mobile after opening new chat modal
+      if (isMobile()) {
+        sidebarStore.collapse();
+      }
     }
   }
 
@@ -54,33 +58,51 @@
       }, 150); // Wait for transition
     } else {
       goto("/history");
+      // Auto-close sidebar on mobile after navigation
+      if (isMobile()) {
+        sidebarStore.collapse();
+      }
     }
   }
 
   function toggleSidebar() {
     sidebarStore.toggle();
   }
+
+  // Helper function to check if we're on mobile
+  function isMobile() {
+    return typeof window !== 'undefined' && window.innerWidth < 768;
+  }
+
+  // Auto-close sidebar on mobile after navigation
+  function handleChatSelect() {
+    if (isMobile()) {
+      sidebarStore.collapse();
+    }
+  }
 </script>
 
 <!-- Mobile Backdrop (only show on mobile when expanded) -->
 {#if !$sidebarStore}
-  <button
-    class="md:hidden fixed inset-0 bg-black/50 z-30 border-none cursor-default"
+  <div
+    class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30 mobile-backdrop"
     onclick={toggleSidebar}
-    onkeydown={(e) => e.key === 'Enter' && toggleSidebar()}
+    onkeydown={(e) => e.key === "Enter" && toggleSidebar()}
     aria-label="Close sidebar"
-    type="button"
-  ></button>
+    role="button"
+    tabindex="0"
+  ></div>
 {/if}
 
 <!-- Main Sidebar Container -->
-<main 
-  class="{$sidebarStore ? 'sidebar-collapsed' : 'sidebar-expanded'} 
+<main
+  class="{($sidebarStore && !isMobile()) ? 'sidebar-collapsed' : 'sidebar-expanded'} 
+         {($sidebarStore && isMobile()) ? 'mobile-hidden' : ''}
          h-full bg-neutral-900 border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out
-         {!$sidebarStore ? 'md:relative md:z-auto z-40' : ''}"
+         md:relative md:z-auto"
 >
-  {#if $sidebarStore}
-    <!-- Collapsed State: Icon Strip -->
+  {#if $sidebarStore && !isMobile()}
+    <!-- Collapsed State: Icon Strip (Desktop only) -->
     <div class="collapsed-sidebar">
       <!-- Expand Button -->
       <button
@@ -112,11 +134,13 @@
         <Icon icon="lucide:search" class="w-5 h-5" />
       </button>
     </div>
-  {:else}
+  {:else if !$sidebarStore || isMobile()}
     <!-- Expanded State: Full Sidebar -->
-    
+
     <!-- Header Section -->
-    <section class="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+    <section
+      class="flex items-center justify-between px-4 py-3 border-b border-gray-800"
+    >
       <button
         class="btn btn-sm btn-ghost flex items-center gap-2"
         onclick={handleNewChatClick}
@@ -126,8 +150,8 @@
         New Chat
       </button>
 
-      <button 
-        aria-label="Collapse Sidebar" 
+      <button
+        aria-label="Collapse Sidebar"
         class="text-gray-300 hover:text-white transition-colors duration-150 p-1 w-8 h-8 flex items-center justify-center"
         onclick={toggleSidebar}
         title="Collapse Sidebar"
@@ -145,6 +169,7 @@
           <a
             href={"/chat/" + chat.id}
             class="truncate flex-1 text-gray-300 hover:text-white transition-colors duration-150"
+            onclick={handleChatSelect}
           >
             {chat.title}
           </a>
@@ -219,13 +244,17 @@
 
   .icon-btn-collapsed:focus {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(23 23 23);
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px rgb(23 23 23);
   }
 
   /* Ensure smooth transitions for width changes */
   .sidebar-expanded,
   .sidebar-collapsed {
-    transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out;
+    transition:
+      width 0.3s ease-in-out,
+      min-width 0.3s ease-in-out;
   }
 
   /* Hide scrollbar in collapsed state */
@@ -238,7 +267,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
     font-weight: 500;
     transition: colors 150ms;
     outline: none;
@@ -253,7 +283,9 @@
 
   .btn:focus {
     outline: none;
-    box-shadow: 0 0 0 2px white, 0 0 0 4px black;
+    box-shadow:
+      0 0 0 2px white,
+      0 0 0 4px black;
   }
 
   .btn-sm {
@@ -261,7 +293,6 @@
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
   }
-
 
   .btn-ghost {
     background: transparent;
@@ -277,17 +308,55 @@
     box-shadow: 0 0 0 2px white;
   }
 
+  /* Mobile backdrop animation */
+  .mobile-backdrop {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   /* Responsive behavior */
   @media (max-width: 768px) {
     .sidebar-expanded {
       width: 280px;
-      position: absolute;
-      z-index: 30;
-      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 40;
+      height: 100vh;
+      transition: transform 0.3s ease-in-out;
     }
-    
+
+    /* On mobile, when sidebar is "collapsed", it should be hidden completely */
+    .sidebar-expanded.mobile-hidden {
+      transform: translateX(-100%);
+    }
+
     .sidebar-collapsed {
-      width: 60px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 40;
+      height: 100vh;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      /* On mobile, collapsed sidebar should be hidden completely */
+      width: 0;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* Override the default transition for mobile */
+    .sidebar-expanded,
+    .sidebar-collapsed {
+      transition: transform 0.3s ease-in-out;
     }
   }
 </style>

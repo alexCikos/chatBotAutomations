@@ -5,7 +5,7 @@
 
 <div class="content-layout">
   <ChatSideBar />
-  <div class="flex-1">
+  <div class="chat-content">
     <ChatInterface />
   </div>
 </div>
@@ -14,5 +14,25 @@
   .content-layout {
     display: flex;
     height: 100%;
+  }
+
+  .chat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+    .content-layout {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .chat-content {
+      width: 100%;
+      height: 100%;
+    }
   }
 </style>
