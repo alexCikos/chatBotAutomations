@@ -48,3 +48,20 @@ export type User = z.infer<typeof UserSchema>;
 export type UsersData = {
   users: User[]; // Array of chats
 };
+
+// Tool schema definition for runtime validation and TypeScript inference
+export const ToolSchema = z.object({
+  userId: z.string(), // ID of the user who owns the tool
+  toolId: z.string(), // Unique identifier for the tool
+  toolName: z.string(), // Name of the tool
+  toolDescription: z.string(), // Short description of what the tool does
+  azureLogicAppEndpoint: z.string(), // Endpoint URL for the associated Azure Logic App
+});
+
+// Inferred TypeScript type based on schema
+export type Tool = z.infer<typeof ToolSchema>;
+
+// Top-level data shape used in local JSON DB (lowdb)
+export type ToolData = {
+  tools: Tool[]; // Array of tools
+};

@@ -1,0 +1,32 @@
+{
+  "tools": [
+    {
+      "userId": "alex-123",
+      "toolId": "weather-tool-001",
+      "toolName": "Weather Information",
+      "toolDescription": "Get current weather conditions and forecasts for any location",
+      "azureLogicAppEndpoint": "https://prod-12.westus.logic.azure.com:443/workflows/weather-workflow/triggers/manual/paths/invoke"
+    },
+    {
+      "userId": "alex-123", 
+      "toolId": "email-tool-001",
+      "toolName": "Email Assistant",
+      "toolDescription": "Send emails and manage email communications",
+      "azureLogicAppEndpoint": "https://prod-13.westus.logic.azure.com:443/workflows/email-workflow/triggers/manual/paths/invoke"
+    },
+    {
+      "userId": "alex-123",
+      "toolId": "calendar-tool-001", 
+      "toolName": "Calendar Manager",
+      "toolDescription": "Schedule meetings and manage calendar events",
+      "azureLogicAppEndpoint": "https://prod-14.westus.logic.azure.com:443/workflows/calendar-workflow/triggers/manual/paths/invoke"
+    },
+    {
+      "userId": "user-456",
+      "toolId": "data-analysis-tool-001",
+      "toolName": "Data Analysis",
+      "toolDescription": "Analyze datasets and generate insights",
+      "azureLogicAppEndpoint": "https://prod-15.westus.logic.azure.com:443/workflows/data-analysis-workflow/triggers/manual/paths/invoke"
+    }
+  ]
+}

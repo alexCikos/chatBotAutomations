@@ -80,7 +80,6 @@
   async function handleEditConfirm(newTitle: string) {
     if (!chatToEdit) return;
 
-    const oldTitle = chatTitleToEdit;
     const result = await editChat(chatToEdit, newTitle);
     
     if (result) {

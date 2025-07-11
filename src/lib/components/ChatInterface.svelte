@@ -4,12 +4,15 @@
   import { page } from "$app/state";
   import { userStore } from "$lib/stores/userStore";
   import Icon from "@iconify/svelte";
+  import ToolSelector from "$lib/components/ToolSelector.svelte";
+  import ToolStatus from "$lib/components/ToolStatus.svelte";
+  import type { Tool } from "$lib/types";
 
   // Destructure store properties for reactivity and logic
   const { messages, content, loadMessages, sendMessage } = chatWindowStore;
 
   const userId = $userStore?.id;
-  let selectedTool: string = $state("tools"); // State for selected tool
+  let selectedTool: Tool | null = $state(null); // State for selected tool
   let inputFocused = $state(false);
 
   // References to DOM elements
@@ -40,13 +43,12 @@
     inputEl?.focus(); // focus back on input
   }
 
-  function openTools() {
-    // Placeholder for opening tools
-    console.log("Tools button clicked");
+  function handleToolSelect(tool: Tool | null) {
+    selectedTool = tool;
   }
 
-  function setSelectedTool(tool: string) {
-    selectedTool = tool; // Update selected tool state
+  function clearToolSelection() {
+    selectedTool = null;
   }
 </script>
 
@@ -68,20 +70,22 @@
     {/each}
   </div>
 
+  <!-- Tool Status Info -->
+  <ToolStatus 
+    selectedTool={selectedTool} 
+    onClear={clearToolSelection}
+  />
+
   <!-- Message input form -->
   <form onsubmit={handleSubmit} class="chat-input-container">
     <!-- Input Field with Tools -->
     <div class="chat-input-wrapper {inputFocused ? 'focused' : ''}">
       <!-- Tools Section -->
       <div class="tools-section">
-        <button
-          type="button"
-          onclick={() => setSelectedTool("tools")}
-          class="tool-btn {selectedTool === 'tools' ? 'active' : ''}"
-          title="Toggle Tools"
-        >
-          <Icon icon="lucide:wrench" class="w-4 h-4" />
-        </button>
+        <ToolSelector 
+          onToolSelect={handleToolSelect} 
+          selectedTool={selectedTool}
+        />
       </div>
 
       <!-- Input -->
@@ -99,14 +103,6 @@
         <Icon icon="lucide:send" class="w-5 h-5" />
       </button>
     </div>
-
-    <!-- Tool Status Info -->
-    {#if selectedTool === "tools"}
-      <div class="tool-status">
-        <Icon icon="lucide:wrench" class="w-4 h-4 text-blue-400" />
-        <span>Tool Panel Active</span>
-      </div>
-    {/if}
   </form>
 </main>
 
@@ -307,54 +303,6 @@
     flex-shrink: 0;
   }
 
-  .tool-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .tool-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-  }
-
-  .tool-btn.active {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(139, 92, 246, 0.2)
-    );
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-  }
-
-  .tool-status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    max-width: 800px;
-    margin: 0.75rem auto 0;
-    padding: 0.5rem 1rem;
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 8px;
-    color: #93c5fd;
-    font-size: 0.875rem;
-    font-family: inherit;
-    backdrop-filter: blur(10px);
-    animation: slideIn 0.2s ease-out;
-  }
-
   @keyframes slideIn {
     from {
       opacity: 0;
@@ -384,10 +332,6 @@
       font-size: 0.9rem;
     }
 
-    .tool-status {
-      margin: 0.5rem auto 0;
-      font-size: 0.8rem;
-    }
 
     .chat-input-wrapper {
       padding: 0.875rem 1rem;
