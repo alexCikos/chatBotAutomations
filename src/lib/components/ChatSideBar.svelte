@@ -313,6 +313,13 @@
     animation: fadeIn 0.3s ease-in-out;
   }
 
+  @media (max-width: 768px) {
+    .mobile-backdrop {
+      top: 64px; /* Start below navbar */
+      height: calc(100vh - 64px);
+    }
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -327,10 +334,10 @@
     .sidebar-expanded {
       width: 280px;
       position: fixed;
-      top: 0;
+      top: 64px; /* Account for navbar height */
       left: 0;
       z-index: 40;
-      height: 100vh;
+      height: calc(100vh - 64px); /* Subtract navbar height */
       transition: transform 0.3s ease-in-out;
     }
 
@@ -341,10 +348,10 @@
 
     .sidebar-collapsed {
       position: fixed;
-      top: 0;
+      top: 64px; /* Account for navbar height */
       left: 0;
       z-index: 40;
-      height: 100vh;
+      height: calc(100vh - 64px); /* Subtract navbar height */
       transform: translateX(-100%);
       transition: transform 0.3s ease-in-out;
       /* On mobile, collapsed sidebar should be hidden completely */

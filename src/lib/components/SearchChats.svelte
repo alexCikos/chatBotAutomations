@@ -24,7 +24,7 @@
   <!-- Background Elements -->
   <div class="background-grid"></div>
   <div class="background-gradient"></div>
-  
+
   <!-- Main Content -->
   <div class="search-content {mounted ? 'animate-in' : 'opacity-0'}">
     <!-- Header Section -->
@@ -32,12 +32,8 @@
       <div class="header-icon">
         <Icon icon="lucide:search" class="w-8 h-8" />
       </div>
-      <h1 class="search-title">
-        Search your chats
-      </h1>
-      <p class="search-subtitle">
-        Find your previous conversations
-      </p>
+      <h1 class="search-title">Search your chats</h1>
+      <p class="search-subtitle">Find your previous conversations</p>
     </div>
 
     <!-- Search Section -->
@@ -47,16 +43,16 @@
         <input
           type="text"
           placeholder="Type to search your chats..."
-          onfocus={() => inputFocused = true}
-          onblur={() => inputFocused = false}
+          onfocus={() => (inputFocused = true)}
+          onblur={() => (inputFocused = false)}
           onkeydown={(e) => e.key === "Enter" && handleEnter($filteredChats)}
           bind:value={$searchTerm}
           class="search-input-field"
         />
         {#if $searchTerm}
-          <button 
+          <button
             class="clear-search-btn"
-            onclick={() => $searchTerm = ''}
+            onclick={() => ($searchTerm = "")}
             aria-label="Clear search"
           >
             <Icon icon="lucide:x" class="w-4 h-4" />
@@ -70,7 +66,11 @@
       <div class="results-section">
         {#if $filteredChats.length > 0}
           <div class="results-header">
-            <span class="results-count">{$filteredChats.length} chat{$filteredChats.length !== 1 ? 's' : ''} found</span>
+            <span class="results-count"
+              >{$filteredChats.length} chat{$filteredChats.length !== 1
+                ? "s"
+                : ""} found</span
+            >
           </div>
           <div class="results-grid">
             {#each $filteredChats as chat}
@@ -100,7 +100,9 @@
               <Icon icon="lucide:search-x" class="w-12 h-12" />
             </div>
             <h3 class="no-results-title">No chats found</h3>
-            <p class="no-results-text">Try adjusting your search terms or browse all chats.</p>
+            <p class="no-results-text">
+              Try adjusting your search terms or browse all chats.
+            </p>
           </div>
         {/if}
       </div>
@@ -141,9 +143,11 @@
   .background-grid {
     position: absolute;
     inset: 0;
-    background-image: 
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-image: linear-gradient(
+        rgba(255, 255, 255, 0.02) 1px,
+        transparent 1px
+      ),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: grid-move 20s linear infinite;
   }
@@ -151,12 +155,20 @@
   .background-gradient {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 30% 70%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+    background: radial-gradient(
+      circle at 30% 70%,
+      rgba(139, 92, 246, 0.1) 0%,
+      transparent 50%
+    );
   }
 
   @keyframes grid-move {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
+    0% {
+      transform: translate(0, 0);
+    }
+    100% {
+      transform: translate(50px, 50px);
+    }
   }
 
   .search-content {
@@ -239,7 +251,6 @@
     box-shadow: 0 0 32px rgba(139, 92, 246, 0.2);
   }
 
-
   .search-input-field {
     flex: 1;
     background: transparent;
@@ -275,8 +286,12 @@
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .results-header {
@@ -401,12 +416,30 @@
       padding: 1rem;
     }
 
+    .search-input-section {
+      margin-bottom: 0.5rem; /* Reduced from 2rem to 1rem for mobile */
+    }
+
+    .search-tips {
+      padding: 0;
+    }
+
     .tips-grid {
       grid-template-columns: 1fr;
     }
 
     .search-input-wrapper {
       padding: 0.875rem 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .search-header {
+      margin-bottom: 1.5rem; /* Reduced from 2rem to 1.5rem for mobile */
+    }
+
+    .search-input-section {
+      margin-bottom: 0.75rem; /* Even smaller margin for very small screens */
     }
   }
 </style>
