@@ -253,7 +253,7 @@
   .chat-input-wrapper {
     position: relative;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     max-width: 800px;
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.05);
@@ -284,7 +284,7 @@
     resize: none;
     min-height: 24px;
     max-height: 120px;
-    overflow-y: hidden;
+    overflow-y: auto;
     transition: height 0.2s ease;
   }
 
