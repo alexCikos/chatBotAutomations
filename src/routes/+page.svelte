@@ -170,7 +170,7 @@
                   <div class="suggestion-label">{item.label}</div>
                   <div class="suggestion-desc">{item.description}</div>
                 </div>
-                {#if item.shortcut}
+                {#if 'shortcut' in item && item.shortcut}
                   <div class="suggestion-shortcut">{item.shortcut}</div>
                 {:else if item.type === 'chat'}
                   <div class="suggestion-meta">

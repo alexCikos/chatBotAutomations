@@ -1,11 +1,3 @@
 {
-  "chats": [
-    {
-      "id": "2410c88c-142b-4b94-9c27-61ab267923c4",
-      "userId": "alex-123",
-      "title": "email chat",
-      "description": "qoute plumbers",
-      "createdAt": "2025-07-12T12:09:22.579Z"
-    }
-  ]
+  "chats": []
 }

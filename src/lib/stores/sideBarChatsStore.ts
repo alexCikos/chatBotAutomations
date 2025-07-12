@@ -74,9 +74,11 @@ function createSideBarStore() {
     chats.update((chatList) => chatList.filter((chat) => chat.id !== chatId));
   }
 
-  async function editChat(chatId: string, newTitle: string) {
+  async function editChat(chatId: string, newTitle: string, newDescription?: string) {
     const trimmedTitle = newTitle.trim();
     if (!trimmedTitle) return null;
+
+    const trimmedDescription = newDescription?.trim();
 
     // Get current chat list to find the userId if needed
     const currentChatList = get(chats);
@@ -84,14 +86,28 @@ function createSideBarStore() {
     // Optimistically update the UI
     chats.update((chatList) =>
       chatList.map((chat) =>
-        chat.id === chatId ? { ...chat, title: trimmedTitle } : chat
+        chat.id === chatId 
+          ? { 
+              ...chat, 
+              title: trimmedTitle,
+              description: trimmedDescription || undefined
+            } 
+          : chat
       )
     );
+
+    const updateData: { title: string; description?: string } = { 
+      title: trimmedTitle 
+    };
+    
+    if (trimmedDescription !== undefined) {
+      updateData.description = trimmedDescription || undefined;
+    }
 
     const res = await fetch(`/api/chats/${chatId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: trimmedTitle }),
+      body: JSON.stringify(updateData),
     });
 
     if (!res.ok) {

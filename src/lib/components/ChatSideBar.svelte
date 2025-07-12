@@ -29,6 +29,7 @@
   let editModalOpen: boolean = $state(false);
   let chatToEdit: string | null = $state(null);
   let chatTitleToEdit: string | null = $state(null);
+  let chatDescriptionToEdit: string | null = $state(null);
 
   function handleDeleteClick(chatId: string) {
     const chat = $chats.find(c => c.id === chatId);
@@ -73,19 +74,20 @@
     const chat = $chats.find(c => c.id === chatId);
     chatToEdit = chatId;
     chatTitleToEdit = chat?.title || null;
+    chatDescriptionToEdit = chat?.description || null;
     editModalOpen = true;
     activeDropdownId = null;
   }
 
-  async function handleEditConfirm(newTitle: string) {
+  async function handleEditConfirm(newTitle: string, newDescription?: string) {
     if (!chatToEdit) return;
 
-    const result = await editChat(chatToEdit, newTitle);
+    const result = await editChat(chatToEdit, newTitle, newDescription);
     
     if (result) {
       // Show success toast
       toastStore.add({
-        message: `Chat title updated to "${newTitle}"`,
+        message: `Chat updated successfully`,
         type: 'success',
         duration: 3000
       });
@@ -94,12 +96,14 @@
     editModalOpen = false;
     chatToEdit = null;
     chatTitleToEdit = null;
+    chatDescriptionToEdit = null;
   }
 
   function handleEditCancel() {
     editModalOpen = false;
     chatToEdit = null;
     chatTitleToEdit = null;
+    chatDescriptionToEdit = null;
   }
 
   function toggleDropdown(chatId: string) {
@@ -325,6 +329,7 @@
     onConfirm={handleEditConfirm}
     onCancel={handleEditCancel}
     currentTitle={chatTitleToEdit || ""}
+    currentDescription={chatDescriptionToEdit || undefined}
   />
 {/if}
 

@@ -2,18 +2,26 @@
   import Icon from "@iconify/svelte";
 
   interface Props {
-    onConfirm: (newTitle: string) => void;
+    onConfirm: (newTitle: string, newDescription?: string) => void;
     onCancel: () => void;
     currentTitle: string;
+    currentDescription?: string;
   }
 
-  let { onConfirm, onCancel, currentTitle }: Props = $props();
+  let { onConfirm, onCancel, currentTitle, currentDescription }: Props = $props();
   let newTitle = $state(currentTitle);
+  let newDescription = $state(currentDescription || '');
 
   function handleConfirm() {
     const trimmedTitle = newTitle.trim();
-    if (trimmedTitle && trimmedTitle !== currentTitle) {
-      onConfirm(trimmedTitle);
+    const trimmedDescription = newDescription.trim();
+    
+    // Check if either title or description has changed
+    const titleChanged = trimmedTitle !== currentTitle;
+    const descriptionChanged = trimmedDescription !== (currentDescription || '');
+    
+    if (trimmedTitle && (titleChanged || descriptionChanged)) {
+      onConfirm(trimmedTitle, trimmedDescription || undefined);
     } else {
       onCancel();
     }
@@ -52,7 +60,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title">Edit Chat</h2>
-        <p class="modal-subtitle">Update the chat title</p>
+        <p class="modal-subtitle">Update the chat title and description</p>
       </div>
 
       <form onsubmit={handleSubmit} class="modal-form">
@@ -63,6 +71,12 @@
             placeholder="Enter new chat title..."
             class="modal-input"
           />
+          <textarea
+            bind:value={newDescription}
+            placeholder="Enter chat description (optional)..."
+            class="modal-input modal-textarea"
+            rows="3"
+          ></textarea>
         </div>
 
         <div class="modal-footer">
@@ -74,7 +88,7 @@
           <button
             type="submit"
             class="btn btn-primary"
-            disabled={!newTitle.trim() || newTitle.trim() === currentTitle}
+            disabled={!newTitle.trim() || (newTitle.trim() === currentTitle && newDescription.trim() === (currentDescription || ''))}
           >
             <Icon icon="lucide:check" class="w-4 h-4" />
             Save Changes
@@ -214,6 +228,18 @@
     font-weight: 400;
   }
 
+
+  .modal-textarea {
+    resize: vertical;
+    min-height: 80px;
+    max-height: 120px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.5;
+  }
+
+  .modal-body {
+    gap: 1rem;
+  }
   .modal-footer {
     display: flex;
     gap: 1rem;
@@ -323,6 +349,18 @@
       padding: 0.875rem 1rem;
     }
 
+
+  .modal-textarea {
+    resize: vertical;
+    min-height: 80px;
+    max-height: 120px;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height: 1.5;
+  }
+
+  .modal-body {
+    gap: 1rem;
+  }
     .modal-footer {
       flex-direction: column;
       gap: 0.75rem;
