@@ -17,7 +17,7 @@
 
   // References to DOM elements
   let scrollEl: HTMLDivElement;
-  let inputEl: HTMLInputElement;
+  let inputEl: HTMLTextAreaElement;
 
   // Load existing messages when the component is first mounted
   $effect.pre(() => {
@@ -49,6 +49,27 @@
 
   function clearToolSelection() {
     selectedTool = null;
+  }
+
+  // Auto-resize textarea function
+  function handleTextareaResize(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    textarea.style.height = 'auto';
+    
+    // Calculate the new height based on scroll height
+    const newHeight = Math.min(textarea.scrollHeight, 120); // max height of 120px
+    textarea.style.height = newHeight + 'px';
+  }
+
+  // Handle Enter key submission and Shift+Enter for new lines
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      const form = inputEl?.closest('form');
+      if (form) {
+        form.requestSubmit();
+      }
+    }
   }
 </script>
 
@@ -89,14 +110,17 @@
       </div>
 
       <!-- Input -->
-      <input
+      <textarea
         bind:this={inputEl}
         bind:value={$content}
         placeholder="Type your message..."
         class="chat-input"
+        rows="1"
         onfocus={() => (inputFocused = true)}
         onblur={() => (inputFocused = false)}
-      />
+        oninput={handleTextareaResize}
+        onkeydown={handleKeyDown}
+      ></textarea>
 
       <!-- Send Button -->
       <button type="submit" class="chat-send-btn" disabled={!$content.trim()}>
@@ -229,7 +253,7 @@
   .chat-input-wrapper {
     position: relative;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     max-width: 800px;
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.05);
@@ -257,6 +281,11 @@
     font-family: inherit;
     line-height: 1.5;
     margin: 0 12px;
+    resize: none;
+    min-height: 24px;
+    max-height: 120px;
+    overflow-y: hidden;
+    transition: height 0.2s ease;
   }
 
   .chat-input:focus {
