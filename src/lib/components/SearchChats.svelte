@@ -84,6 +84,9 @@
                 </div>
                 <div class="chat-result-content">
                   <div class="chat-result-title">{chat.title}</div>
+                  {#if chat.description}
+                    <div class="chat-result-description">{chat.description}</div>
+                  {/if}
                   <div class="chat-result-date">
                     {new Date(chat.createdAt).toLocaleDateString()}
                   </div>
@@ -343,6 +346,17 @@
     font-weight: 500;
     margin-bottom: 0.25rem;
     color: white;
+  }
+
+  .chat-result-description {
+    font-size: 0.875rem;
+    color: #cbd5e1;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .chat-result-date {

@@ -14,7 +14,7 @@ function createSideBarStore() {
   chats.subscribe(($chats) => {
     fuse.set(
       new Fuse($chats, {
-        keys: ["title"],
+        keys: ["title", "description"],
         threshold: 0.3,
       })
     );
