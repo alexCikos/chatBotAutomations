@@ -34,11 +34,12 @@ function createSideBarStore() {
     chats.set(data.chats);
   }
 
-  async function createChat(userID: string, titleValue: string) {
+  async function createChat(userID: string, titleValue: string, description?: string) {
     const newChat: Chat = {
       id: crypto.randomUUID(),
       userId: userID,
       title: titleValue.trim(),
+      description: description?.trim() || undefined,
       createdAt: new Date().toISOString(),
     };
 

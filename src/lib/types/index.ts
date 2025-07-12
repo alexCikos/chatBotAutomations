@@ -23,6 +23,7 @@ export const ChatSchema = z.object({
   id: z.string(), // Unique identifier for the chat
   userId: z.string(), // ID of the user who owns the chat
   title: z.string(), // Title of the chat session
+  description: z.string().optional(), // Optional description of the chat
   createdAt: z.string(), // ISO 8601 timestamp of chat creation
 });
 

@@ -254,10 +254,13 @@
         >
           <a
             href={"/chat/" + chat.id}
-            class="truncate flex-1 text-gray-300 hover:text-white transition-colors duration-150"
+            class="flex-1 text-gray-300 hover:text-white transition-colors duration-150 chat-link"
             onclick={handleChatSelect}
           >
-            {chat.title}
+            <div class="chat-title truncate">{chat.title}</div>
+            {#if chat.description}
+              <div class="chat-description truncate">{chat.description}</div>
+            {/if}
           </a>
           <div class="relative">
             <button
@@ -449,6 +452,29 @@
     to {
       opacity: 1;
     }
+  }
+
+  /* Chat item styling */
+  .chat-link {
+    display: block;
+  }
+
+  .chat-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .chat-description {
+    font-size: 0.75rem;
+    color: rgb(156 163 175); /* gray-400 */
+    line-height: 1.3;
+    margin-top: 0.25rem;
+    max-width: 180px;
+  }
+
+  .chat-link:hover .chat-description {
+    color: rgb(209 213 219); /* gray-300 */
   }
 
   /* Responsive behavior */

@@ -1,12 +1,3 @@
 {
-  "messages": [
-    {
-      "id": "3e23a3fc-86cb-459d-b2e7-d1c4b37ef56e",
-      "chatId": "d0386395-39fe-4267-990f-a88d92556530",
-      "userId": "alex-123",
-      "role": "user",
-      "content": "send an email",
-      "createdAt": "2025-07-12T03:20:38.251Z"
-    }
-  ]
+  "messages": []
 }

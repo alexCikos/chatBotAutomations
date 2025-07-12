@@ -27,7 +27,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
   if (!chatID) return json({ error: "Missing chatID" }, { status: 400 });
 
   const body = await request.json();
-  const { title } = body;
+  const { title, description } = body;
 
   if (!title || typeof title !== "string" || !title.trim()) {
     return json({ error: "Title is required and must be a non-empty string" }, { status: 400 });
@@ -42,8 +42,11 @@ export const PUT: RequestHandler = async ({ params, request }) => {
     return json({ error: "Chat not found" }, { status: 404 });
   }
 
-  // Update the chat title
+  // Update the chat title and description
   chatDb.data.chats[chatIndex].title = title.trim();
+  if (description !== undefined) {
+    chatDb.data.chats[chatIndex].description = description?.trim() || undefined;
+  }
   
   await chatDb.write();
 

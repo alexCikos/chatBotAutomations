@@ -14,16 +14,18 @@
 
   const { content, createChat } = sideBarChatsStore;
   const userId = $userStore?.id;
+  let description = $state("");
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     const value = $content.trim();
     if (!value || typeof userId !== "string") return;
 
-    const chat = await createChat(userId, value);
+    const chat = await createChat(userId, value, description.trim() || undefined);
     if (!chat) return;
 
     $content = "";
+    description = "";
 
     // Show success toast
     toastStore.add({
@@ -72,6 +74,12 @@
             placeholder="Enter chat title..."
             class="modal-input"
           />
+          <textarea
+            bind:value={description}
+            placeholder="Enter a short description (optional)..."
+            class="modal-input modal-textarea"
+            rows="2"
+          ></textarea>
         </div>
 
         <div class="modal-footer">
@@ -185,6 +193,7 @@
   .modal-body {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
   }
 
   .modal-input {
@@ -214,6 +223,13 @@
   .modal-input::placeholder {
     color: #64748b;
     font-weight: 400;
+  }
+
+  .modal-textarea {
+    resize: none;
+    min-height: 60px;
+    font-family: inherit;
+    line-height: 1.5;
   }
 
   .modal-footer {
