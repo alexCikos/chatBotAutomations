@@ -1,3 +1,12 @@
 {
-  "messages": []
+  "messages": [
+    {
+      "id": "4506257a-ae99-43bd-b18a-7ddcfab2cacd",
+      "chatId": "2410c88c-142b-4b94-9c27-61ab267923c4",
+      "userId": "alex-123",
+      "role": "user",
+      "content": "this is an email chat to plumbers",
+      "createdAt": "2025-07-12T12:18:41.668Z"
+    }
+  ]
 }

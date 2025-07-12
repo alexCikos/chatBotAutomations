@@ -4,10 +4,16 @@
   import { onMount } from "svelte";
   import Fuse from "fuse.js";
   import Icon from "@iconify/svelte";
+  import { sideBarChatsStore } from "$lib/stores/sideBarChatsStore";
+  import { userStore } from "$lib/stores/userStore";
+  import type { Chat } from "$lib/types";
 
   const input = writable("");
   let inputFocused = $state(false);
   let mounted = $state(false);
+
+  const { chats, loadChats } = sideBarChatsStore;
+  const userId = $userStore?.id;
 
   const commands = [
     {
@@ -44,16 +50,42 @@
     },
   ];
 
-  // Setup Fuse
-  const fuse = new Fuse(commands, {
+  // Setup Fuse for commands
+  const commandFuse = new Fuse(commands, {
     keys: ["match"],
     threshold: 0.3,
   });
 
-  const suggestions = derived(input, ($input) => {
+  // Setup Fuse for chats
+  const chatFuse = derived(chats, ($chats) => {
+    return new Fuse($chats, {
+      keys: ["title", "description"],
+      threshold: 0.3,
+    });
+  });
+
+  const suggestions = derived([input, chatFuse], ([$input, $chatFuse]) => {
     const term = $input.trim();
     if (!term) return [];
-    return fuse.search(term).map((result) => result.item);
+    
+    // Search commands
+    const commandResults = commandFuse.search(term).map((result) => ({
+      ...result.item,
+      type: "command"
+    }));
+    
+    // Search chats
+    const chatResults = $chatFuse.search(term).map((result) => ({
+      ...result.item,
+      type: "chat",
+      label: result.item.title,
+      description: result.item.description || `Created ${new Date(result.item.createdAt).toLocaleDateString()}`,
+      icon: "lucide:message-circle",
+      action: () => goto(`/chat/${result.item.id}`)
+    }));
+    
+    // Combine and limit results
+    return [...commandResults, ...chatResults].slice(0, 6);
   });
 
   function handleEnter(suggestions: { action: () => void }[]) {
@@ -62,9 +94,14 @@
     }
   }
 
-  // Keyboard shortcuts
+  // Load chats and keyboard shortcuts
   onMount(() => {
     mounted = true;
+    
+    // Load chats if user is available
+    if (userId) {
+      loadChats(userId);
+    }
 
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey) {
@@ -120,20 +157,26 @@
         <!-- Search Suggestions -->
         {#if $suggestions.length > 0}
           <div class="suggestions-dropdown">
-            {#each $suggestions as cmd}
+            {#each $suggestions as item}
               <button
                 type="button"
-                class="suggestion-item"
-                onclick={() => cmd.action()}
+                class="suggestion-item {item.type === 'chat' ? 'suggestion-chat' : 'suggestion-command'}"
+                onclick={() => item.action()}
               >
                 <div class="suggestion-icon">
-                  <Icon icon={cmd.icon} class="w-5 h-5" />
+                  <Icon icon={item.icon} class="w-5 h-5" />
                 </div>
                 <div class="suggestion-content">
-                  <div class="suggestion-label">{cmd.label}</div>
-                  <div class="suggestion-desc">{cmd.description}</div>
+                  <div class="suggestion-label">{item.label}</div>
+                  <div class="suggestion-desc">{item.description}</div>
                 </div>
-                <div class="suggestion-shortcut">{cmd.shortcut}</div>
+                {#if item.shortcut}
+                  <div class="suggestion-shortcut">{item.shortcut}</div>
+                {:else if item.type === 'chat'}
+                  <div class="suggestion-meta">
+                    <Icon icon="lucide:arrow-right" class="w-4 h-4" />
+                  </div>
+                {/if}
               </button>
             {/each}
           </div>
@@ -408,6 +451,33 @@
     background: rgba(255, 255, 255, 0.05);
     padding: 2px 6px;
     border-radius: 4px;
+  }
+
+  .suggestion-meta {
+    color: #64748b;
+    transition: all 0.2s ease;
+  }
+
+  .suggestion-chat {
+    border-left: 3px solid rgba(139, 92, 246, 0.3);
+  }
+
+  .suggestion-chat:hover {
+    border-left-color: rgba(139, 92, 246, 0.6);
+    background: rgba(139, 92, 246, 0.1);
+  }
+
+  .suggestion-chat:hover .suggestion-meta {
+    color: #8b5cf6;
+    transform: translateX(2px);
+  }
+
+  .suggestion-command {
+    border-left: 3px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .suggestion-command:hover {
+    border-left-color: rgba(59, 130, 246, 0.6);
   }
 
   .actions-section {
