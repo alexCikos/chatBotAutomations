@@ -1,3 +1,11 @@
 {
-  "chats": []
+  "chats": [
+    {
+      "id": "ed40e12f-9e9e-4bbc-8533-d199e9567e50",
+      "userId": "alex-123",
+      "title": "test",
+      "description": "this a test chat about random shit",
+      "createdAt": "2025-07-13T10:01:44.438Z"
+    }
+  ]
 }

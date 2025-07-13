@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
+  import { page } from "$app/state";
   import Icon from "@iconify/svelte";
   import { sidebarStore } from "$lib/stores/sidebarStore";
 
@@ -24,13 +24,15 @@
   <div class="navbar-content">
     <!-- Left: Mobile Menu Button and Logo -->
     <div class="navbar-left">
-      <button
-        class="mobile-menu-btn"
-        onclick={toggleSidebar}
-        aria-label="Toggle Sidebar"
-      >
-        <Icon icon="lucide:menu" class="w-5 h-5" />
-      </button>
+      {#if page.route.id !== "/"}
+        <button
+          class="mobile-menu-btn"
+          onclick={toggleSidebar}
+          aria-label="Toggle Sidebar"
+        >
+          <Icon icon="lucide:menu" class="w-5 h-5" />
+        </button>
+      {/if}
       <a href="/" class="navbar-brand">
         <img src={logoUrl} alt="Logo" class="brand-logo" />
       </a>
