@@ -1,49 +1,35 @@
-// Import LowDB adapter and database engine for file-based JSON storage
-import { JSONFile } from "lowdb/node";
-import { Low } from "lowdb";
-
 // Import SvelteKit's JSON response utility
 import { json } from "@sveltejs/kit";
 
-// Import types and validation schema for message structure
+// Import types and validation schema for chat structure
 import type { RequestHandler } from "./$types";
-import { ChatSchema, type Chat, type ChatData } from "$lib/types";
+import { ChatSchema, type Chat } from "$lib/types";
 
-/**
- * Initializes and returns the database instance.
- * Reads from db.json and ensures the default structure is set.
- */
-const getDb = async () => {
-  const adapter = new JSONFile<ChatData>("chats.json");
-  const db = new Low(adapter, { chats: [] });
-  await db.read();
-  db.data ||= { chats: [] }; // fallback to empty array if no data
-  return db;
-};
+// Import Cosmos DB functions
+import { getChatsByUserId, createChat } from "$lib/server/cosmos";
 
 // GET /chats/user/[userID]
-// Returns all messages belonging to the specified chat ID
+// Returns all chats belonging to the specified user ID
 export const GET: RequestHandler = async ({ params }) => {
   if (!params.userID) {
     return json({ error: "Missing userID" }, { status: 400 });
   }
 
-  const db = await getDb();
-
-  // Filter messages by useerId
-  const chats = db.data.chats.filter((m) => m.userId === params.userID);
-
-  return json({ chats });
+  try {
+    const chats = await getChatsByUserId(params.userID);
+    return json({ chats });
+  } catch (error) {
+    console.error("Error fetching chats:", error);
+    return json({ error: "Failed to fetch chats" }, { status: 500 });
+  }
 };
 
 // POST /chats/user/[userID]
-// Adds a new message to the specified chat ID
+// Creates a new chat for the specified user ID
 export const POST: RequestHandler = async ({ request, params }) => {
   if (!params.userID) {
-    return json({ error: "Missing chatID" }, { status: 400 });
+    return json({ error: "Missing userID" }, { status: 400 });
   }
-
-  const db = await getDb();
 
   let body: unknown;
   try {
@@ -65,7 +51,7 @@ export const POST: RequestHandler = async ({ request, params }) => {
   if (newChat.userId !== params.userID) {
     return json(
       {
-        error: "chatId mismatch",
+        error: "userId mismatch",
         expected: params.userID,
         received: newChat.userId,
       },
@@ -73,8 +59,11 @@ export const POST: RequestHandler = async ({ request, params }) => {
     );
   }
 
-  db.data.chats.push(newChat);
-  await db.write();
-
-  return json({ chat: newChat }); // ✅ just return the created chat
+  try {
+    const createdChat = await createChat(newChat);
+    return json({ chat: createdChat });
+  } catch (error) {
+    console.error("Error creating chat:", error);
+    return json({ error: "Failed to create chat" }, { status: 500 });
+  }
 };

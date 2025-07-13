@@ -8,7 +8,7 @@
 
   let { selectedTool, onClear }: Props = $props();
   let showTooltip = $state(false);
-  let tooltipTimeout: number;
+  let tooltipTimeout: ReturnType<typeof setTimeout>;
 
   function handleMouseEnter() {
     clearTimeout(tooltipTimeout);

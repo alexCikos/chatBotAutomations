@@ -38,8 +38,9 @@
     const value = $content.trim();
     if (!value) return; // prevent empty messages
 
-    await sendMessage(page.params.chatID, value, userId ?? ""); // send message via store
+    await sendMessage(page.params.chatID, value, userId ?? "", selectedTool); // send message via store
     $content = ""; // clear input
+    selectedTool = null; // clear tool selection after sending
     inputEl?.focus(); // focus back on input
   }
 

@@ -1,49 +1,38 @@
-// Import LowDB adapter and database engine for file-based JSON storage
-import { JSONFile } from "lowdb/node";
-import { Low } from "lowdb";
-
 // Import SvelteKit's JSON response utility
 import { json } from "@sveltejs/kit";
 
 // Import types and validation schema for message structure
 import type { RequestHandler } from "./$types";
-import { MessageSchema, type Message, type MessageData } from "$lib/types";
+import { MessageSchema, type Message } from "$lib/types";
 
-/**
- * Initializes and returns the database instance.
- * Reads from db.json and ensures the default structure is set.
- */
-const getDb = async () => {
-  const adapter = new JSONFile<MessageData>("messages.json");
-  const db = new Low(adapter, { messages: [] });
-  await db.read();
-  db.data ||= { messages: [] }; // fallback to empty array if no data
-  return db;
-};
+// Import Cosmos DB utilities
+import { getMessagesByChatId, createMessage, initializeCosmosDB } from "$lib/server/cosmos";
 
-// GET /api/chat/[chatID]
+// Initialize Cosmos DB connection on module load
+initializeCosmosDB().catch(console.error);
+
+// GET /api/messages/[chatID]
 // Returns all messages belonging to the specified chat ID
 export const GET: RequestHandler = async ({ params }) => {
   if (!params.chatID) {
     return json({ error: "Missing chatID" }, { status: 400 });
   }
 
-  const db = await getDb();
-
-  // Filter messages by chatId
-  const messages = db.data.messages.filter((m) => m.chatId === params.chatID);
-
-  return json({ messages });
+  try {
+    const messages = await getMessagesByChatId(params.chatID);
+    return json({ messages });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    return json({ error: "Failed to fetch messages" }, { status: 500 });
+  }
 };
 
-// POST /api/chat/[chatID]
+// POST /api/messages/[chatID]
 // Adds a new message to the specified chat ID
 export const POST: RequestHandler = async ({ request, params }) => {
   if (!params.chatID) {
     return json({ error: "Missing chatID" }, { status: 400 });
   }
-
-  const db = await getDb();
 
   // Parse and validate incoming JSON payload
   let body: unknown;
@@ -76,11 +65,14 @@ export const POST: RequestHandler = async ({ request, params }) => {
     );
   }
 
-  // Store the new message and persist to disk
-  db.data.messages.push(newMessage);
-  await db.write();
-
-  // Return updated messages for this chat
-  const updated = db.data.messages.filter((m) => m.chatId === params.chatID);
-  return json({ messages: updated });
+  try {
+    // Create message in Cosmos DB
+    const createdMessage = await createMessage(newMessage);
+    
+    // Return the created message
+    return json({ message: createdMessage }, { status: 201 });
+  } catch (error) {
+    console.error("Error creating message:", error);
+    return json({ error: "Failed to create message" }, { status: 500 });
+  }
 };

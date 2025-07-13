@@ -1,88 +1,90 @@
-import { JSONFile } from "lowdb/node";
-import { Low } from "lowdb";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { ChatData, MessageData } from "$lib/types";
 
-// Load chats.json
-const getChatDb = async () => {
-  const adapter = new JSONFile<ChatData>("chats.json");
-  const db = new Low(adapter, { chats: [] });
-  await db.read();
-  db.data ||= { chats: [] };
-  return db;
-};
-
-// Optionally delete related messages
-const getMessageDb = async () => {
-  const adapter = new JSONFile<MessageData>("messages.json");
-  const db = new Low(adapter, { messages: [] });
-  await db.read();
-  db.data ||= { messages: [] };
-  return db;
-};
+// Import Cosmos DB functions
+import { getChatById, updateChat, deleteChat, getMessagesByChatId, deleteMessage } from "$lib/server/cosmos";
 
 export const PUT: RequestHandler = async ({ params, request }) => {
   const chatID = params.chatID;
   if (!chatID) return json({ error: "Missing chatID" }, { status: 400 });
 
   const body = await request.json();
-  const { title, description } = body;
+  const { title, description, userId } = body;
 
   if (!title || typeof title !== "string" || !title.trim()) {
     return json({ error: "Title is required and must be a non-empty string" }, { status: 400 });
   }
 
-  const chatDb = await getChatDb();
-  
-  // Find the chat to update
-  const chatIndex = chatDb.data.chats.findIndex((c) => c.id === chatID);
-  
-  if (chatIndex === -1) {
-    return json({ error: "Chat not found" }, { status: 404 });
+  if (!userId || typeof userId !== "string") {
+    return json({ error: "UserId is required" }, { status: 400 });
   }
 
-  // Update the chat title and description
-  chatDb.data.chats[chatIndex].title = title.trim();
-  if (description !== undefined) {
-    chatDb.data.chats[chatIndex].description = description?.trim() || undefined;
-  }
-  
-  await chatDb.write();
+  try {
+    // Get the existing chat
+    const existingChat = await getChatById(chatID, userId);
+    
+    if (!existingChat) {
+      return json({ error: "Chat not found" }, { status: 404 });
+    }
 
-  return json({
-    success: true,
-    chat: chatDb.data.chats[chatIndex],
-  });
+    // Update the chat with new title and description
+    const updatedChat = {
+      ...existingChat,
+      title: title.trim(),
+      description: description?.trim() || undefined,
+      updatedAt: new Date().toISOString()
+    };
+    
+    const result = await updateChat(updatedChat);
+
+    return json({
+      success: true,
+      chat: result,
+    });
+  } catch (error) {
+    console.error("Error updating chat:", error);
+    return json({ error: "Failed to update chat" }, { status: 500 });
+  }
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
+export const DELETE: RequestHandler = async ({ params, url }) => {
   const chatID = params.chatID;
   if (!chatID) return json({ error: "Missing chatID" }, { status: 400 });
 
-  const chatDb = await getChatDb();
-  const msgDb = await getMessageDb();
+  const userId = url.searchParams.get("userId");
+  if (!userId) return json({ error: "Missing userId parameter" }, { status: 400 });
 
-  // Remove chat from chats.json
-  const beforeCount = chatDb.data.chats.length;
-  chatDb.data.chats = chatDb.data.chats.filter((c) => c.id !== chatID);
-  const afterCount = chatDb.data.chats.length;
+  try {
+    // First verify the chat exists
+    const existingChat = await getChatById(chatID, userId);
+    if (!existingChat) {
+      return json({ error: "Chat not found" }, { status: 404 });
+    }
 
-  if (beforeCount === afterCount) {
-    return json({ error: "Chat not found" }, { status: 404 });
+    // Get all messages for this chat to delete them
+    const messages = await getMessagesByChatId(chatID);
+    let deletedMessages = 0;
+
+    // Delete all messages for this chat
+    for (const message of messages) {
+      try {
+        await deleteMessage(message.id, chatID);
+        deletedMessages++;
+      } catch (error) {
+        console.error(`Failed to delete message ${message.id}:`, error);
+      }
+    }
+
+    // Delete the chat
+    await deleteChat(chatID, userId);
+
+    return json({
+      success: true,
+      deletedChatId: chatID,
+      deletedMessages,
+    });
+  } catch (error) {
+    console.error("Error deleting chat:", error);
+    return json({ error: "Failed to delete chat" }, { status: 500 });
   }
-
-  // Optional: also delete messages
-  const beforeMessages = msgDb.data.messages.length;
-  msgDb.data.messages = msgDb.data.messages.filter((m) => m.chatId !== chatID);
-  const deletedMessages = beforeMessages - msgDb.data.messages.length;
-
-  await chatDb.write();
-  await msgDb.write();
-
-  return json({
-    success: true,
-    deletedChatId: chatID,
-    deletedMessages,
-  });
 };
