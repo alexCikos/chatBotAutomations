@@ -14,6 +14,8 @@
   const userId = $userStore?.id;
   let selectedTool: Tool | null = $state(null); // State for selected tool
   let inputFocused = $state(false);
+  let isSubmitting = $state(false); // Track submission state
+  let errorMessage = $state<string | null>(null); // Track errors
 
   // References to DOM elements
   let scrollEl: HTMLDivElement;
@@ -21,27 +23,52 @@
 
   // Load existing messages when the component is first mounted
   $effect.pre(() => {
-    loadMessages(page.params.chatID);
+    (async () => {
+      try {
+        await loadMessages(page.params.chatID);
+        errorMessage = null; // Clear any previous errors
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+        errorMessage = "Failed to load chat messages. Please refresh the page.";
+      }
+    })();
   });
 
   // Auto-scroll to bottom whenever messages change
   $effect(() => {
     $messages;
-    tick().then(() => {
-      if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
-    });
+    (async () => {
+      try {
+        await tick();
+        if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
+      } catch (error) {
+        console.error("Failed to scroll to bottom:", error);
+        // Non-critical error, don't show to user
+      }
+    })();
   });
 
   // Handle new message submission
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     const value = $content.trim();
-    if (!value) return; // prevent empty messages
+    if (!value || isSubmitting) return; // prevent empty messages and double submission
 
-    await sendMessage(page.params.chatID, value, userId ?? "", selectedTool); // send message via store
-    $content = ""; // clear input
-    selectedTool = null; // clear tool selection after sending
-    inputEl?.focus(); // focus back on input
+    isSubmitting = true;
+    errorMessage = null; // Clear any previous errors
+
+    try {
+      await sendMessage(page.params.chatID, value, userId ?? "", selectedTool);
+      $content = ""; // clear input
+      selectedTool = null; // clear tool selection after sending
+      inputEl?.focus(); // focus back on input
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      errorMessage = "Failed to send message. Please try again.";
+      // Don't clear the input so user can retry
+    } finally {
+      isSubmitting = false;
+    }
   }
 
   function handleToolSelect(tool: Tool | null) {
@@ -85,6 +112,21 @@
     onClear={clearToolSelection}
   />
 
+  <!-- Error Message Display -->
+  {#if errorMessage}
+    <div class="error-banner" role="alert">
+      <Icon icon="lucide:alert-circle" class="w-5 h-5" />
+      <span>{errorMessage}</span>
+      <button 
+        onclick={() => errorMessage = null}
+        class="error-close-btn"
+        aria-label="Close error message"
+      >
+        <Icon icon="lucide:x" class="w-4 h-4" />
+      </button>
+    </div>
+  {/if}
+
   <!-- Message list container -->
   <div bind:this={scrollEl} class="messages-container">
     {#each $messages as msg}
@@ -124,8 +166,17 @@
       ></textarea>
 
       <!-- Send Button -->
-      <button type="submit" class="chat-send-btn" disabled={!$content.trim()}>
-        <Icon icon="lucide:send" class="w-5 h-5" />
+      <button 
+        type="submit" 
+        class="chat-send-btn" 
+        disabled={!$content.trim() || isSubmitting}
+        title={isSubmitting ? "Sending..." : "Send message"}
+      >
+        {#if isSubmitting}
+          <Icon icon="lucide:loader-2" class="w-5 h-5 animate-spin" />
+        {:else}
+          <Icon icon="lucide:send" class="w-5 h-5" />
+        {/if}
       </button>
     </div>
   </form>
@@ -160,6 +211,46 @@
     inset: 0;
     background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
     z-index: 1;
+  }
+
+  .error-banner {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
+    animation: slideInError 0.3s ease-out;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .error-close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .error-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 
   @keyframes grid-move {
@@ -342,6 +433,30 @@
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInError {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  :global(.animate-spin) {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 

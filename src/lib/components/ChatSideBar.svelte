@@ -10,14 +10,23 @@
   import EditChatModal from "$lib/components/EditChatModal.svelte";
   import { toastStore } from "$lib/stores/toastStore";
 
-  const { chats, content, loadChats, createChat, deleteChat, editChat } =
+  const { chats, loadChats, deleteChat, editChat } =
     sideBarChatsStore;
 
   const userId = $userStore?.id;
+  let loadingError = $state<string | null>(null);
 
   $effect(() => {
     if (userId) {
-      loadChats(userId);
+      (async () => {
+        try {
+          await loadChats(userId);
+          loadingError = null;
+        } catch (error) {
+          console.error("Failed to load chats:", error);
+          loadingError = "Failed to load chats. Please refresh the page.";
+        }
+      })();
     }
   });
 
@@ -30,6 +39,8 @@
   let chatToEdit: string | null = $state(null);
   let chatTitleToEdit: string | null = $state(null);
   let chatDescriptionToEdit: string | null = $state(null);
+  let isDeleting = $state(false);
+  let isEditing = $state(false);
 
   function handleDeleteClick(chatId: string) {
     const chat = $chats.find(c => c.id === chatId);
@@ -40,27 +51,39 @@
   }
 
   async function handleDeleteConfirm() {
-    if (!chatToDelete) return;
+    if (!chatToDelete || isDeleting) return;
 
+    isDeleting = true;
     const chatTitle = chatTitleToDelete;
     const deletedChatId = chatToDelete; // Store the ID before setting to null
     
-    await deleteChat(chatToDelete);
-    chatWindowStore.clear();
-    deleteModalOpen = false;
-    chatToDelete = null;
-    chatTitleToDelete = null;
+    try {
+      await deleteChat(chatToDelete);
+      chatWindowStore.clear();
+      deleteModalOpen = false;
+      chatToDelete = null;
+      chatTitleToDelete = null;
 
-    // Show success toast
-    toastStore.add({
-      message: `Chat${chatTitle ? ` "${chatTitle}"` : ''} deleted successfully`,
-      type: 'success',
-      duration: 3000
-    });
+      // Show success toast
+      toastStore.add({
+        message: `Chat${chatTitle ? ` "${chatTitle}"` : ''} deleted successfully`,
+        type: 'success',
+        duration: 3000
+      });
 
-    // Optional: if current chat was deleted, redirect to safe route
-    if (window.location.pathname === `/chat/${deletedChatId}`) {
-      goto("/history");
+      // Optional: if current chat was deleted, redirect to safe route
+      if (window.location.pathname === `/chat/${deletedChatId}`) {
+        goto("/history");
+      }
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
+      toastStore.add({
+        message: `Failed to delete chat${chatTitle ? ` "${chatTitle}"` : ''}. Please try again.`,
+        type: 'error',
+        duration: 5000
+      });
+    } finally {
+      isDeleting = false;
     }
   }
 
@@ -80,23 +103,38 @@
   }
 
   async function handleEditConfirm(newTitle: string, newDescription?: string) {
-    if (!chatToEdit) return;
+    if (!chatToEdit || isEditing) return;
 
-    const result = await editChat(chatToEdit, newTitle, newDescription);
+    isEditing = true;
     
-    if (result) {
-      // Show success toast
+    try {
+      const result = await editChat(chatToEdit, newTitle, newDescription);
+      
+      if (result) {
+        // Show success toast
+        toastStore.add({
+          message: `Chat updated successfully`,
+          type: 'success',
+          duration: 3000
+        });
+        
+        editModalOpen = false;
+        chatToEdit = null;
+        chatTitleToEdit = null;
+        chatDescriptionToEdit = null;
+      } else {
+        throw new Error('Edit operation failed');
+      }
+    } catch (error) {
+      console.error("Failed to edit chat:", error);
       toastStore.add({
-        message: `Chat updated successfully`,
-        type: 'success',
-        duration: 3000
+        message: `Failed to update chat. Please try again.`,
+        type: 'error',
+        duration: 5000
       });
+    } finally {
+      isEditing = false;
     }
-
-    editModalOpen = false;
-    chatToEdit = null;
-    chatTitleToEdit = null;
-    chatDescriptionToEdit = null;
   }
 
   function handleEditCancel() {
@@ -252,6 +290,13 @@
 
     <!-- Main content area with chat list -->
     <div class="sidebar-content flex-1 overflow-y-auto">
+      {#if loadingError}
+        <div class="error-message">
+          <Icon icon="lucide:alert-circle" class="w-4 h-4" />
+          <span>{loadingError}</span>
+        </div>
+      {/if}
+      
       {#each $chats as chat}
         <div
           class="flex items-center justify-between px-4 py-3 hover:bg-gray-800 border-b border-gray-800"
@@ -482,15 +527,29 @@
     color: rgb(209 213 219); /* gray-300 */
   }
 
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 0.875rem;
+    text-align: left;
+  }
+
   /* Responsive behavior */
   @media (max-width: 768px) {
     .sidebar-expanded {
       width: 280px;
       position: fixed;
-      top: 64px; /* Account for navbar height */
+      top: 64px; /* Start below navbar */
       left: 0;
       z-index: 40;
-      height: calc(100vh - 64px); /* Subtract navbar height */
+      height: calc(100vh - 64px); /* Account for navbar height */
       transition: transform 0.3s ease-in-out;
     }
 
@@ -501,10 +560,10 @@
 
     .sidebar-collapsed {
       position: fixed;
-      top: 64px; /* Account for navbar height */
+      top: 64px; /* Start below navbar */
       left: 0;
       z-index: 40;
-      height: calc(100vh - 64px); /* Subtract navbar height */
+      height: calc(100vh - 64px); /* Account for navbar height */
       transform: translateX(-100%);
       transition: transform 0.3s ease-in-out;
       /* On mobile, collapsed sidebar should be hidden completely */

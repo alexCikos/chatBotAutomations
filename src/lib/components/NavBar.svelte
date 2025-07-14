@@ -157,8 +157,5 @@
     }
   }
 
-  /* Ensure content doesn't overlap navbar */
-  :global(body) {
-    padding-top: 64px;
-  }
+  /* Note: body padding-top is now handled in +layout.svelte */
 </style>

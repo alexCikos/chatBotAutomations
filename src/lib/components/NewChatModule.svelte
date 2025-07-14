@@ -15,27 +15,46 @@
   const { content, createChat } = sideBarChatsStore;
   const userId = $userStore?.id;
   let description = $state("");
+  let isSubmitting = $state(false);
+  let errorMessage = $state<string | null>(null);
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     const value = $content.trim();
-    if (!value || typeof userId !== "string") return;
+    if (!value || typeof userId !== "string" || isSubmitting) return;
 
-    const chat = await createChat(userId, value, description.trim() || undefined);
-    if (!chat) return;
+    isSubmitting = true;
+    errorMessage = null;
 
-    $content = "";
-    description = "";
+    try {
+      const chat = await createChat(userId, value, description.trim() || undefined);
+      if (!chat) {
+        throw new Error('Failed to create chat');
+      }
 
-    // Show success toast
-    toastStore.add({
-      message: `Chat "${chat.title}" created successfully`,
-      type: 'success',
-      duration: 3000
-    });
+      $content = "";
+      description = "";
 
-    onClose?.(); // ✅ call parent callback
-    goto(`/chat/${chat.id}`);
+      // Show success toast
+      toastStore.add({
+        message: `Chat "${chat.title}" created successfully`,
+        type: 'success',
+        duration: 3000
+      });
+
+      onClose?.(); // ✅ call parent callback
+      goto(`/chat/${chat.id}`);
+    } catch (error) {
+      console.error("Failed to create chat:", error);
+      errorMessage = "Failed to create chat. Please try again.";
+      toastStore.add({
+        message: "Failed to create chat. Please try again.",
+        type: 'error',
+        duration: 5000
+      });
+    } finally {
+      isSubmitting = false;
+    }
   }
 
   function closeModal() {
@@ -68,22 +87,36 @@
 
       <form onsubmit={handleSubmit} class="modal-form">
         <div class="modal-body">
+          {#if errorMessage}
+            <div class="error-message" role="alert">
+              <Icon icon="lucide:alert-circle" class="w-4 h-4" />
+              <span>{errorMessage}</span>
+            </div>
+          {/if}
+          
           <input
             type="text"
             bind:value={$content}
             placeholder="Enter chat title..."
             class="modal-input"
+            disabled={isSubmitting}
           />
           <textarea
             bind:value={description}
             placeholder="Enter a short description (optional)..."
             class="modal-input modal-textarea"
             rows="2"
+            disabled={isSubmitting}
           ></textarea>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick={closeModal}>
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            onclick={closeModal}
+            disabled={isSubmitting}
+          >
             <Icon icon="lucide:x" class="w-4 h-4" />
             Cancel
           </button>
@@ -91,10 +124,15 @@
           <button
             type="submit"
             class="btn btn-primary"
-            disabled={!$content.trim()}
+            disabled={!$content.trim() || isSubmitting}
           >
-            <Icon icon="lucide:plus" class="w-4 h-4" />
-            Create
+            {#if isSubmitting}
+              <Icon icon="lucide:loader-2" class="w-4 h-4 animate-spin" />
+              Creating...
+            {:else}
+              <Icon icon="lucide:plus" class="w-4 h-4" />
+              Create
+            {/if}
           </button>
         </div>
       </form>
@@ -314,6 +352,32 @@
 
   .btn-secondary:active {
     transform: translateY(0);
+  }
+
+  .error-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 0.875rem;
+  }
+
+  :global(.animate-spin) {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   /* Responsive Design */
