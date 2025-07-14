@@ -1,4 +1,3 @@
-import adapter from "@sveltejs/adapter-auto";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import azure from "svelte-adapter-azure-swa";
 
@@ -13,12 +12,7 @@ const config = {
     // If your environment is not supported, or you settled on a specific environment, switch out the adapter.
     // See https://svelte.dev/docs/kit/adapters for more information about adapters.
     adapter: azure({
-      allowReservedSwaRoutes: true,
-      customStaticWebAppConfig: {
-        platform: {
-          apiRuntime: "node:20"
-        }
-      }
+      allowReservedSwaRoutes: true
     }),
   },
   compilerOptions: {
