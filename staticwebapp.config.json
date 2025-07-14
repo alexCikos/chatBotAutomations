@@ -1,7 +1,8 @@
 {
-  "build": {
-    "env": {
-      "NODE_VERSION": "20"
-    }
+  "platform": {
+    "apiRuntime": "node:20"
+  },
+  "navigationFallback": {
+    "rewrite": "/index.html"
   }
 }
