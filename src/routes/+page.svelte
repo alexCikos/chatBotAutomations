@@ -6,7 +6,6 @@
   import Icon from "@iconify/svelte";
   import { sideBarChatsStore } from "$lib/stores/sideBarChatsStore";
   import { userStore } from "$lib/stores/userStore";
-  import type { Chat } from "$lib/types";
 
   const input = writable("");
   let inputFocused = $state(false);
@@ -67,23 +66,25 @@
   const suggestions = derived([input, chatFuse], ([$input, $chatFuse]) => {
     const term = $input.trim();
     if (!term) return [];
-    
+
     // Search commands
     const commandResults = commandFuse.search(term).map((result) => ({
       ...result.item,
-      type: "command"
+      type: "command",
     }));
-    
+
     // Search chats
     const chatResults = $chatFuse.search(term).map((result) => ({
       ...result.item,
       type: "chat",
       label: result.item.title,
-      description: result.item.description || `Created ${new Date(result.item.createdAt).toLocaleDateString()}`,
+      description:
+        result.item.description ||
+        `Created ${new Date(result.item.createdAt).toLocaleDateString()}`,
       icon: "lucide:message-circle",
-      action: () => goto(`/chat/${result.item.id}`)
+      action: () => goto(`/chat/${result.item.id}`),
     }));
-    
+
     // Combine and limit results
     return [...commandResults, ...chatResults].slice(0, 6);
   });
@@ -97,7 +98,7 @@
   // Load chats and keyboard shortcuts
   onMount(() => {
     mounted = true;
-    
+
     // Load chats if user is available
     if (userId) {
       loadChats(userId);
@@ -160,7 +161,9 @@
             {#each $suggestions as item}
               <button
                 type="button"
-                class="suggestion-item {item.type === 'chat' ? 'suggestion-chat' : 'suggestion-command'}"
+                class="suggestion-item {item.type === 'chat'
+                  ? 'suggestion-chat'
+                  : 'suggestion-command'}"
                 onclick={() => item.action()}
               >
                 <div class="suggestion-icon">
@@ -170,9 +173,9 @@
                   <div class="suggestion-label">{item.label}</div>
                   <div class="suggestion-desc">{item.description}</div>
                 </div>
-                {#if 'shortcut' in item && item.shortcut}
+                {#if "shortcut" in item && item.shortcut}
                   <div class="suggestion-shortcut">{item.shortcut}</div>
-                {:else if item.type === 'chat'}
+                {:else if item.type === "chat"}
                   <div class="suggestion-meta">
                     <Icon icon="lucide:arrow-right" class="w-4 h-4" />
                   </div>
