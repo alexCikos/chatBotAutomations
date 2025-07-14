@@ -1,4 +1,5 @@
-import { CosmosClient, Container, Database } from "@azure/cosmos";
+import { CosmosClient } from "@azure/cosmos";
+import type { Container, Database } from "@azure/cosmos";
 import type { Message, Chat, User, Tool } from "$lib/types";
 import { env } from "$env/dynamic/private";
 
@@ -315,6 +316,35 @@ export async function deleteChat(chatId: string, userId: string): Promise<void> 
     await container.item(chatId, userId).delete();
   } catch (error) {
     console.error("Error deleting chat:", error);
+    throw error;
+  }
+}
+
+// =================================
+// TOOL OPERATIONS
+// =================================
+
+/**
+ * Get all tools for a specific user
+ */
+export async function getToolsByUserId(userId: string): Promise<Tool[]> {
+  const container = await getContainer("tools");
+  
+  try {
+    const querySpec = {
+      query: "SELECT * FROM c WHERE c.userId = @userId ORDER BY c.toolName ASC",
+      parameters: [
+        {
+          name: "@userId",
+          value: userId,
+        },
+      ],
+    };
+
+    const { resources } = await container.items.query<Tool>(querySpec).fetchAll();
+    return resources;
+  } catch (error) {
+    console.error("Error fetching user tools:", error);
     throw error;
   }
 }

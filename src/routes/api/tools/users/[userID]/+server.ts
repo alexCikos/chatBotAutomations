@@ -1,17 +1,6 @@
-import { JSONFile } from "lowdb/node";
-import { Low } from "lowdb";
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import type { ToolData } from "$lib/types";
-
-// Load tools.json database
-const getToolDb = async () => {
-  const adapter = new JSONFile<ToolData>("tools.json");
-  const db = new Low(adapter, { tools: [] });
-  await db.read();
-  db.data ||= { tools: [] };
-  return db;
-};
+import { getToolsByUserId } from "$lib/server/cosmos";
 
 export const GET: RequestHandler = async ({ params }) => {
   const userID = params.userID;
@@ -21,12 +10,7 @@ export const GET: RequestHandler = async ({ params }) => {
   }
 
   try {
-    const toolDb = await getToolDb();
-
-    // Filter tools for the specific user
-    const userTools = toolDb.data.tools.filter(
-      (tool) => tool.userId === userID
-    );
+    const userTools = await getToolsByUserId(userID);
 
     return json({
       success: true,

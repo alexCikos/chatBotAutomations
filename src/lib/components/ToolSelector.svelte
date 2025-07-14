@@ -51,7 +51,7 @@
 <div class="tool-selector" bind:this={dropdownRef}>
   <button
     type="button"
-    class="tool-btn {selectedTool ? 'active' : ''}"
+    class="tool-btn {selectedTool !== null ? 'active' : ''}"
     onclick={toggleDropdown}
     title="Select Tool"
   >
@@ -72,7 +72,7 @@
         <!-- No Tool Option -->
         <button
           type="button"
-          class="tool-option {selectedTool === null ? 'selected' : ''}"
+          class="tool-option"
           onclick={() => selectTool(null)}
         >
           <div class="tool-option-content">
@@ -101,7 +101,7 @@
         {#each $tools as tool}
           <button
             type="button"
-            class="tool-option {selectedTool?.toolId === tool.toolId
+            class="tool-option {selectedTool !== null && selectedTool?.toolId === tool.toolId
               ? 'selected'
               : ''}"
             onclick={() => selectTool(tool)}

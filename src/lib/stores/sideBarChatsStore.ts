@@ -62,7 +62,16 @@ function createSideBarStore() {
   }
 
   async function deleteChat(chatId: string) {
-    const res = await fetch(`/api/chats/${chatId}`, {
+    // Get the current chat list to find the userId
+    const currentChatList = get(chats);
+    const chatToDelete = currentChatList.find((chat) => chat.id === chatId);
+    
+    if (!chatToDelete) {
+      console.error("Chat not found in store");
+      return;
+    }
+
+    const res = await fetch(`/api/chats/${chatId}?userId=${chatToDelete.userId}`, {
       method: "DELETE",
     });
 
