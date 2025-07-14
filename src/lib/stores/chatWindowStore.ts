@@ -58,43 +58,82 @@ function createChatWindowStore() {
       return;
     }
 
-    // If a tool is selected, simulate tool response
+    // If a tool is selected, call the actual tool endpoint
     if (selectedTool) {
-      await simulateToolResponse(chatId, contentValue, selectedTool, userID);
+      await callToolEndpoint(chatId, contentValue, selectedTool, userID);
     }
 
     content.set("");
   }
 
   /**
-   * Simulates sending a POST request to a tool endpoint and generates a mock response
+   * Calls the actual tool endpoint and processes the response
    */
-  async function simulateToolResponse(
+  async function callToolEndpoint(
     chatId: string,
     userMessage: string,
     tool: Tool,
     userID: string
   ) {
     try {
-      // Simulate the POST request to the tool endpoint
-      console.log(`Simulating POST to ${tool.azureLogicAppEndpoint}`, {
+      console.log(`Calling tool endpoint: ${tool.azureLogicAppEndpoint}`, {
         message: userMessage,
         toolId: tool.toolId,
         userId: userID
       });
 
-      // Add a slight delay to simulate network request
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      // Call the actual Azure Logic App endpoint
+      const response = await fetch(tool.azureLogicAppEndpoint, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          toolId: tool.toolId,
+          userId: userID,
+          chatId: chatId
+        }),
+      });
 
-      // Generate mock response based on tool type
-      const mockResponse = generateMockToolResponse(tool, userMessage);
+      let toolResponse: string;
+
+      if (!response.ok) {
+        throw new Error(`Tool endpoint returned ${response.status}: ${response.statusText}`);
+      }
+
+      // Try to parse the response
+      try {
+        const responseData = await response.json();
+        
+        // Handle different response formats
+        if (typeof responseData === 'string') {
+          toolResponse = responseData;
+        } else if (responseData.message) {
+          toolResponse = responseData.message;
+        } else if (responseData.result) {
+          toolResponse = responseData.result;
+        } else if (responseData.response) {
+          toolResponse = responseData.response;
+        } else {
+          toolResponse = JSON.stringify(responseData, null, 2);
+        }
+      } catch (parseError) {
+        // If JSON parsing fails, use the raw text response
+        toolResponse = await response.text();
+      }
+
+      // Ensure we have a valid response
+      if (!toolResponse || toolResponse.trim() === '') {
+        throw new Error('Tool endpoint returned empty response');
+      }
 
       const assistantMessage: Message = {
         id: crypto.randomUUID(),
         chatId,
         userId: "assistant",
         role: "assistant",
-        content: mockResponse,
+        content: `🔧 **${tool.toolName}** responded:\n\n${toolResponse}`,
         createdAt: new Date().toISOString(),
       };
 
@@ -109,47 +148,48 @@ function createChatWindowStore() {
       });
 
     } catch (error) {
-      console.error("Error simulating tool response:", error);
+      console.error("Error calling tool endpoint:", error);
       
-      const errorMessage: Message = {
+      let errorMessage: string;
+      
+      if (error instanceof Error) {
+        if (error.message.includes('Failed to fetch')) {
+          errorMessage = `❌ Unable to connect to ${tool.toolName}. The tool endpoint may be unavailable or there's a network issue.`;
+        } else if (error.message.includes('empty response')) {
+          errorMessage = `❌ ${tool.toolName} returned an empty response. Please check the tool configuration.`;
+        } else if (error.message.includes('returned 4') || error.message.includes('returned 5')) {
+          errorMessage = `❌ ${tool.toolName} encountered an error: ${error.message}`;
+        } else {
+          errorMessage = `❌ Error processing request with ${tool.toolName}: ${error.message}`;
+        }
+      } else {
+        errorMessage = `❌ Unknown error occurred while calling ${tool.toolName}. Please try again.`;
+      }
+      
+      const errorResponseMessage: Message = {
         id: crypto.randomUUID(),
         chatId,
         userId: "assistant",
         role: "assistant",
-        content: `Sorry, there was an error processing your request with ${tool.toolName}. Please try again.`,
+        content: errorMessage,
         createdAt: new Date().toISOString(),
       };
 
-      messages.update((msgs) => [...msgs, errorMessage]);
+      messages.update((msgs) => [...msgs, errorResponseMessage]);
+      
+      // Save error message to backend
+      try {
+        await fetch(`/api/messages/${chatId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(errorResponseMessage),
+        });
+      } catch (saveError) {
+        console.error("Failed to save error message:", saveError);
+      }
     }
   }
 
-  /**
-   * Generates mock responses based on the tool type and user message
-   */
-  function generateMockToolResponse(tool: Tool, userMessage: string): string {
-    const toolName = tool.toolName.toLowerCase();
-
-    // Generate contextual responses based on tool name and message content
-    if (toolName.includes('weather')) {
-      return `🌤️ Based on your query "${userMessage}", here's the current weather information:\n\nLocation: Detected from context\nTemperature: 72°F (22°C)\nConditions: Partly cloudy\nHumidity: 65%\nWind: 8 mph NW\n\nThis is a simulated response from ${tool.toolName}.`;
-    }
-    
-    if (toolName.includes('email') || toolName.includes('mail')) {
-      return `📧 Email processed successfully using ${tool.toolName}!\n\nYour message "${userMessage}" has been queued for sending.\n\nStatus: Queued\nEstimated delivery: Within 2 minutes\nMessage ID: MSG-${Date.now()}\n\nThis is a simulated response.`;
-    }
-    
-    if (toolName.includes('calendar') || toolName.includes('schedule')) {
-      return `📅 Calendar operation completed using ${tool.toolName}!\n\nProcessed request: "${userMessage}"\n\nUpcoming events:\n• Team meeting - Tomorrow 2:00 PM\n• Project review - Friday 10:00 AM\n• Client call - Next Monday 3:00 PM\n\nThis is a simulated response.`;
-    }
-    
-    if (toolName.includes('data') || toolName.includes('analytics')) {
-      return `📊 Data analysis completed using ${tool.toolName}!\n\nQuery: "${userMessage}"\n\nResults:\n• Records processed: 1,247\n• Success rate: 98.5%\n• Average response time: 0.3s\n• Top category: Business Intelligence\n\nThis is a simulated response.`;
-    }
-
-    // Default response for any other tool
-    return `✅ Your request has been processed successfully using ${tool.toolName}!\n\nOriginal message: "${userMessage}"\n\nResponse details:\n• Status: Completed\n• Processing time: ${(Math.random() * 3 + 0.5).toFixed(1)}s\n• Reference ID: REF-${Date.now()}\n\nThis is a simulated response. In production, this would connect to the actual endpoint: ${tool.azureLogicAppEndpoint}`;
-  }
 
   function clear() {
     messages.set([]);
