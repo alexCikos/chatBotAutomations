@@ -11,6 +11,11 @@ const databaseId = env.COSMOS_DATABASE_ID || "chatbot";
 // Only check for environment variables in runtime, not at module load time
 function validateEnvironment() {
   if (!endpoint || !key) {
+    // In build/dev mode, log warning instead of throwing error
+    if (typeof process !== 'undefined' && (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV)) {
+      console.warn("⚠️ Missing Cosmos DB environment variables: COSMOS_ENDPOINT and COSMOS_KEY");
+      return;
+    }
     throw new Error("Missing required Cosmos DB environment variables: COSMOS_ENDPOINT and COSMOS_KEY");
   }
 }
