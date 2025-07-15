@@ -14,6 +14,11 @@
   function toggleSidebar() {
     sidebarStore.toggle();
   }
+
+  function logout() {
+    // Azure App Service logout URL
+    window.location.href = "/.auth/logout";
+  }
 </script>
 
 <nav class="navbar">
@@ -38,10 +43,13 @@
       </a>
     </div>
 
-    <!-- Right: Welcome and Avatar -->
+    <!-- Right: Welcome, Avatar, and Logout -->
     <div class="navbar-user">
       <span class="welcome-text">Welcome, {businessName}</span>
       <img src={logoUrl} alt="Business Avatar" class="user-avatar-img" />
+      <button class="logout-btn" onclick={logout} aria-label="Logout">
+        <Icon icon="lucide:log-out" class="w-4 h-4" />
+      </button>
     </div>
   </div>
 </nav>
@@ -138,6 +146,25 @@
     transform: scale(1.05);
   }
 
+  .logout-btn {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
   /* Responsive Design */
   @media (max-width: 768px) {
     .navbar-content {
@@ -154,6 +181,10 @@
 
     .navbar-user {
       gap: 0.5rem;
+    }
+
+    .logout-btn {
+      padding: 0.375rem;
     }
   }
 
