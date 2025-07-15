@@ -6,10 +6,17 @@
   import ToastContainer from "$lib/components/ToastContainer.svelte";
   import { page } from "$app/state";
 
+  // Debug: Log the data received from server
+  console.log('=== Client Layout Data ===');
+  console.log('Full data object:', data);
+  console.log('User data:', data.user);
+  
   // Set user from server data or fallback to hardcoded for development
   if (data.user) {
+    console.log('Using authenticated user:', data.user);
     userStore.set(data.user);
   } else {
+    console.log('Using fallback user for development');
     // Fallback for local development
     userStore.set({
       id: "alex-123",
