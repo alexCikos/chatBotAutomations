@@ -1,16 +1,22 @@
 <script>
-  let { children } = $props();
+  let { children, data } = $props();
   import "../app.css";
   import { userStore } from "$lib/stores/userStore";
   import NavBar from "$lib/components/NavBar.svelte";
   import ToastContainer from "$lib/components/ToastContainer.svelte";
   import { page } from "$app/state";
 
-  userStore.set({
-    id: "alex-123",
-    name: "Alex",
-    createdAt: new Date().toISOString(),
-  });
+  // Set user from server data or fallback to hardcoded for development
+  if (data.user) {
+    userStore.set(data.user);
+  } else {
+    // Fallback for local development
+    userStore.set({
+      id: "alex-123",
+      name: "Alex",
+      createdAt: new Date().toISOString(),
+    });
+  }
 
   const userName = $userStore?.name || "User";
   const isLoginPage = $derived(page.route.id === "/login");

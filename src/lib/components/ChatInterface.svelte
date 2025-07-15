@@ -82,18 +82,18 @@
   // Auto-resize textarea function
   function handleTextareaResize(event: Event) {
     const textarea = event.target as HTMLTextAreaElement;
-    textarea.style.height = 'auto';
-    
+    textarea.style.height = "auto";
+
     // Calculate the new height based on scroll height
     const newHeight = Math.min(textarea.scrollHeight, 120); // max height of 120px
-    textarea.style.height = newHeight + 'px';
+    textarea.style.height = newHeight + "px";
   }
 
   // Handle Enter key submission and Shift+Enter for new lines
   function handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      const form = inputEl?.closest('form');
+      const form = inputEl?.closest("form");
       if (form) {
         form.requestSubmit();
       }
@@ -107,18 +107,15 @@
   <div class="background-gradient"></div>
 
   <!-- Tool Status Info -->
-  <ToolStatus 
-    selectedTool={selectedTool} 
-    onClear={clearToolSelection}
-  />
+  <ToolStatus {selectedTool} onClear={clearToolSelection} />
 
   <!-- Error Message Display -->
   {#if errorMessage}
     <div class="error-banner" role="alert">
       <Icon icon="lucide:alert-circle" class="w-5 h-5" />
       <span>{errorMessage}</span>
-      <button 
-        onclick={() => errorMessage = null}
+      <button
+        onclick={() => (errorMessage = null)}
         class="error-close-btn"
         aria-label="Close error message"
       >
@@ -146,10 +143,7 @@
     <div class="chat-input-wrapper {inputFocused ? 'focused' : ''}">
       <!-- Tools Section -->
       <div class="tools-section">
-        <ToolSelector 
-          onToolSelect={handleToolSelect} 
-          selectedTool={selectedTool}
-        />
+        <ToolSelector onToolSelect={handleToolSelect} {selectedTool} />
       </div>
 
       <!-- Input -->
@@ -166,9 +160,9 @@
       ></textarea>
 
       <!-- Send Button -->
-      <button 
-        type="submit" 
-        class="chat-send-btn" 
+      <button
+        type="submit"
+        class="chat-send-btn"
         disabled={!$content.trim() || isSubmitting}
         title={isSubmitting ? "Sending..." : "Send message"}
       >
@@ -209,7 +203,11 @@
   .background-gradient {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(59, 130, 246, 0.1) 0%,
+      transparent 50%
+    );
     z-index: 1;
   }
 
@@ -222,7 +220,11 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.9),
+      rgba(220, 38, 38, 0.9)
+    );
     border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 12px;
     padding: 0.75rem 1rem;
@@ -478,7 +480,6 @@
       padding: 0.875rem 1.25rem;
       font-size: 0.9rem;
     }
-
 
     .chat-input-wrapper {
       padding: 0.875rem 1rem;
