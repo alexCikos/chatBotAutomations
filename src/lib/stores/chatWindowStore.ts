@@ -79,35 +79,34 @@ function createChatWindowStore() {
       console.log(`Calling tool endpoint: ${tool.azureLogicAppEndpoint}`, {
         message: userMessage,
         toolId: tool.toolId,
-        userId: userID
+        userId: userID,
       });
 
       // Call the actual Azure Logic App endpoint
       const response = await fetch(tool.azureLogicAppEndpoint, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json"
+        headers: {
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: userMessage,
-          toolId: tool.toolId,
-          userId: userID,
-          chatId: chatId
+          input: userMessage,
         }),
       });
 
       let toolResponse: string;
 
       if (!response.ok) {
-        throw new Error(`Tool endpoint returned ${response.status}: ${response.statusText}`);
+        throw new Error(
+          `Tool endpoint returned ${response.status}: ${response.statusText}`
+        );
       }
 
       // Try to parse the response
       try {
         const responseData = await response.json();
-        
+
         // Handle different response formats
-        if (typeof responseData === 'string') {
+        if (typeof responseData === "string") {
           toolResponse = responseData;
         } else if (responseData.message) {
           toolResponse = responseData.message;
@@ -124,8 +123,8 @@ function createChatWindowStore() {
       }
 
       // Ensure we have a valid response
-      if (!toolResponse || toolResponse.trim() === '') {
-        throw new Error('Tool endpoint returned empty response');
+      if (!toolResponse || toolResponse.trim() === "") {
+        throw new Error("Tool endpoint returned empty response");
       }
 
       const assistantMessage: Message = {
@@ -146,18 +145,20 @@ function createChatWindowStore() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(assistantMessage),
       });
-
     } catch (error) {
       console.error("Error calling tool endpoint:", error);
-      
+
       let errorMessage: string;
-      
+
       if (error instanceof Error) {
-        if (error.message.includes('Failed to fetch')) {
+        if (error.message.includes("Failed to fetch")) {
           errorMessage = `❌ Unable to connect to ${tool.toolName}. The tool endpoint may be unavailable or there's a network issue.`;
-        } else if (error.message.includes('empty response')) {
+        } else if (error.message.includes("empty response")) {
           errorMessage = `❌ ${tool.toolName} returned an empty response. Please check the tool configuration.`;
-        } else if (error.message.includes('returned 4') || error.message.includes('returned 5')) {
+        } else if (
+          error.message.includes("returned 4") ||
+          error.message.includes("returned 5")
+        ) {
           errorMessage = `❌ ${tool.toolName} encountered an error: ${error.message}`;
         } else {
           errorMessage = `❌ Error processing request with ${tool.toolName}: ${error.message}`;
@@ -165,7 +166,7 @@ function createChatWindowStore() {
       } else {
         errorMessage = `❌ Unknown error occurred while calling ${tool.toolName}. Please try again.`;
       }
-      
+
       const errorResponseMessage: Message = {
         id: crypto.randomUUID(),
         chatId,
@@ -176,7 +177,7 @@ function createChatWindowStore() {
       };
 
       messages.update((msgs) => [...msgs, errorResponseMessage]);
-      
+
       // Save error message to backend
       try {
         await fetch(`/api/messages/${chatId}`, {
@@ -189,7 +190,6 @@ function createChatWindowStore() {
       }
     }
   }
-
 
   function clear() {
     messages.set([]);
