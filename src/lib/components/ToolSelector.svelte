@@ -120,7 +120,7 @@
         {#each $tools as tool}
           <button
             type="button"
-            class="{getToolOptionStyles(selectedTool !== null && selectedTool?.toolId === tool.toolId)}"
+            class="{getToolOptionStyles(selectedTool !== null && selectedTool?.id === tool.id)}"
             onclick={() => selectTool(tool)}
           >
             <div class="p-3 flex-1 min-w-0">

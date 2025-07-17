@@ -52,8 +52,8 @@ export type UsersData = {
 
 // Tool schema definition for runtime validation and TypeScript inference
 export const ToolSchema = z.object({
+  id: z.string(), // Unique identifier for the tool (from Cosmos DB)
   userId: z.string(), // ID of the user who owns the tool
-  toolId: z.string(), // Unique identifier for the tool
   toolName: z.string(), // Name of the tool
   toolDescription: z.string(), // Short description of what the tool does
   azureLogicAppEndpoint: z.string(), // Endpoint URL for the associated Azure Logic App
@@ -70,7 +70,8 @@ export type ToolData = {
 // API request/response schemas for tool execution
 export const ToolExecuteRequestSchema = z.object({
   userId: z.string(),
-  toolId: z.string(),
+  toolId: z.string(), // We'll map tool.id to toolId in the request
+  chatId: z.string(),
   input: z.string(),
 });
 
@@ -84,6 +85,8 @@ export const ToolExecuteResponseSchema = z.object({
 // Azure Logic App request body schema (what we send to external endpoints)
 export const LogicAppRequestSchema = z.object({
   input: z.string(),
+  userId: z.string(),
+  chatId: z.string(),
 });
 
 // Azure Logic App response schema (what we receive from external endpoints)

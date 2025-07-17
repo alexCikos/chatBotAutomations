@@ -77,12 +77,6 @@ function createChatWindowStore() {
   ) {
     try {
       console.log(`Calling server-side tool execution for: ${tool.toolName}`);
-      console.log('Tool object received:', tool);
-      console.log('Request data:', {
-        message: userMessage,
-        toolId: tool.toolId,
-        userId: userID,
-      });
 
       // Call the server-side tool execution endpoint
       const response = await fetch("/api/tools/execute", {
@@ -92,7 +86,8 @@ function createChatWindowStore() {
         },
         body: JSON.stringify({
           userId: userID,
-          toolId: tool.toolId,
+          toolId: tool.id, // Use tool.id instead of tool.toolId
+          chatId: chatId,
           input: userMessage,
         }),
       });

@@ -19,9 +19,9 @@
     console.log('Using fallback user for development');
     // Fallback for local development
     userStore.set({
-      id: "alex-123",
-      name: "Alex",
-      createdAt: new Date().toISOString(),
+      id: "P-IDXSUYLJG5bIfblad94fBltiGayJDvvu585JMZDDg",
+      name: "alex cikos",
+      createdAt: "2025-07-17T12:18:32.035Z",
     });
   }
 

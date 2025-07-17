@@ -5,15 +5,12 @@ import { ToolExecuteRequestSchema, LogicAppResponseSchema, type ToolExecuteRespo
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const requestData = await request.json();
-    
-    // Debug: Log the incoming request data
-    console.log('Tool execution request data:', requestData);
 
     // Validate request data using Zod schema
     const validationResult = ToolExecuteRequestSchema.safeParse(requestData);
     
     if (!validationResult.success) {
-      console.error('Validation failed:', validationResult.error.issues);
+      console.error('Tool execution validation failed:', validationResult.error.issues);
       return json(
         { 
           success: false, 
@@ -23,11 +20,11 @@ export const POST: RequestHandler = async ({ request }) => {
       );
     }
 
-    const { userId, toolId, input } = validationResult.data;
+    const { userId, toolId, chatId, input } = validationResult.data;
 
     // Get user's tools to verify access and get endpoint
     const userTools = await getToolsByUserId(userId);
-    const tool = userTools.find(t => t.toolId === toolId);
+    const tool = userTools.find(t => t.id === toolId);
 
     if (!tool) {
       return json(
@@ -42,8 +39,12 @@ export const POST: RequestHandler = async ({ request }) => {
     // Call the external Azure Logic App endpoint server-side
     try {
       // Create the properly typed request body for the Logic App
-      // This matches the expected JSON schema: { "input": { "type": "string" } }
-      const logicAppRequest: LogicAppRequest = { input };
+      // This includes input, userId, and chatId for the Logic App
+      const logicAppRequest: LogicAppRequest = { 
+        input,
+        userId,
+        chatId
+      };
       
       const toolResponse = await fetch(tool.azureLogicAppEndpoint, {
         method: "POST",
