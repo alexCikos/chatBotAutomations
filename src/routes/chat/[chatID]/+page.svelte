@@ -3,36 +3,10 @@
   import ChatInterface from "$lib/components/ChatInterface.svelte";
 </script>
 
-<div class="content-layout">
+<div class="flex h-full max-md:relative max-md:overflow-hidden">
   <ChatSideBar />
-  <div class="chat-content">
+  <div class="flex-1 flex flex-col overflow-hidden max-md:w-full max-md:h-full">
     <ChatInterface />
   </div>
 </div>
 
-<style>
-  .content-layout {
-    display: flex;
-    height: 100%;
-  }
-
-  .chat-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* Mobile adjustments */
-  @media (max-width: 768px) {
-    .content-layout {
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .chat-content {
-      width: 100%;
-      height: 100%;
-    }
-  }
-</style>

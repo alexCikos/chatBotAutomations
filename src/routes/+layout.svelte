@@ -35,22 +35,10 @@
 {/if}
 
 <!-- Main layout wrapper -->
-<main class="main-layout" class:login-page={isLoginPage}>
+<main class="h-[100dvh] overflow-hidden {isLoginPage ? '' : 'h-[calc(100dvh-64px)] mt-16'}">
   {@render children()}
 </main>
 
 <!-- Toast notifications -->
 <ToastContainer />
 
-<style>
-  .main-layout {
-    height: 100dvh;
-    overflow: hidden;
-  }
-  
-  /* When navbar is present, account for navbar height */
-  .main-layout:not(.login-page) {
-    height: calc(100dvh - 64px);
-    margin-top: 64px;
-  }
-</style>

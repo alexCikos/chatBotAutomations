@@ -3,16 +3,10 @@
   import SearchChats from "$lib/components/SearchChats.svelte";
 </script>
 
-<main class="content-layout">
+<main class="flex h-full">
   <ChatSideBar />
   <div class="flex-1">
     <SearchChats />
   </div>
 </main>
 
-<style>
-  .content-layout {
-    display: flex;
-    height: 100%;
-  }
-</style>
