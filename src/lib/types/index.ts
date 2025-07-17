@@ -81,5 +81,17 @@ export const ToolExecuteResponseSchema = z.object({
   error: z.string().optional(),
 });
 
+// Azure Logic App request body schema (what we send to external endpoints)
+export const LogicAppRequestSchema = z.object({
+  input: z.string(),
+});
+
+// Azure Logic App response schema (what we receive from external endpoints)
+export const LogicAppResponseSchema = z.object({
+  Result: z.string(),
+});
+
 export type ToolExecuteRequest = z.infer<typeof ToolExecuteRequestSchema>;
 export type ToolExecuteResponse = z.infer<typeof ToolExecuteResponseSchema>;
+export type LogicAppRequest = z.infer<typeof LogicAppRequestSchema>;
+export type LogicAppResponse = z.infer<typeof LogicAppResponseSchema>;

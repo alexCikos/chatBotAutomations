@@ -1,6 +1,6 @@
 import { json, type RequestHandler } from "@sveltejs/kit";
 import { getToolsByUserId } from "$lib/server/cosmos";
-import { ToolExecuteRequestSchema, type ToolExecuteResponse } from "$lib/types";
+import { ToolExecuteRequestSchema, LogicAppResponseSchema, type ToolExecuteResponse, type LogicAppRequest } from "$lib/types";
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -37,12 +37,16 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // Call the external Azure Logic App endpoint server-side
     try {
+      // Create the properly typed request body for the Logic App
+      // This matches the expected JSON schema: { "input": { "type": "string" } }
+      const logicAppRequest: LogicAppRequest = { input };
+      
       const toolResponse = await fetch(tool.azureLogicAppEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify(logicAppRequest),
       });
 
       if (!toolResponse.ok) {
@@ -56,11 +60,33 @@ export const POST: RequestHandler = async ({ request }) => {
       }
 
       // Try to parse as JSON, fall back to text
-      let toolResult;
+      let toolResult: string;
       const contentType = toolResponse.headers.get("content-type");
       
       if (contentType && contentType.includes("application/json")) {
-        toolResult = await toolResponse.json();
+        const responseData = await toolResponse.json();
+        
+        // Try to parse using the Logic App response schema
+        // Expected format: { "Result": "@{outputs('Compose_-_add_10_to_input')}" }
+        const logicAppResult = LogicAppResponseSchema.safeParse(responseData);
+        
+        if (logicAppResult.success) {
+          // Extract the Result field from Logic App response
+          toolResult = logicAppResult.data.Result;
+        } else {
+          // Fallback to generic parsing for other response formats
+          if (typeof responseData === "string") {
+            toolResult = responseData;
+          } else if (responseData.message) {
+            toolResult = responseData.message;
+          } else if (responseData.result) {
+            toolResult = responseData.result;
+          } else if (responseData.response) {
+            toolResult = responseData.response;
+          } else {
+            toolResult = JSON.stringify(responseData, null, 2);
+          }
+        }
       } else {
         toolResult = await toolResponse.text();
       }
