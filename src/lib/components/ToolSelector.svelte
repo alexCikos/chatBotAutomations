@@ -46,38 +46,57 @@
       return () => document.removeEventListener("click", handleClickOutside);
     }
   });
+
+  function getToolButtonStyles(hasSelectedTool: boolean) {
+    const baseStyles = "relative flex items-center justify-center w-10 h-10 bg-white/10 border border-white/20 rounded-[10px] text-slate-400 cursor-pointer transition-all duration-200 backdrop-blur-md";
+    const activeStyles = "bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-blue-500/30 text-blue-500";
+    const hoverStyles = "hover:bg-white/20 hover:border-white/30 hover:text-white";
+    
+    return hasSelectedTool 
+      ? `${baseStyles} ${activeStyles}` 
+      : `${baseStyles} ${hoverStyles}`;
+  }
+
+  function getToolOptionStyles(isSelected: boolean) {
+    const baseStyles = "flex items-center w-full py-3 px-4 bg-transparent border-none text-white text-left cursor-pointer transition-all duration-200 font-mono hover:bg-white/5";
+    const selectedStyles = "bg-blue-500/10 text-blue-300";
+    
+    return isSelected 
+      ? `${baseStyles} ${selectedStyles}` 
+      : baseStyles;
+  }
 </script>
 
-<div class="tool-selector" bind:this={dropdownRef}>
+<div class="relative inline-block" bind:this={dropdownRef}>
   <button
     type="button"
-    class="tool-btn {selectedTool !== null ? 'active' : ''}"
+    class="{getToolButtonStyles(selectedTool !== null)}"
     onclick={toggleDropdown}
     title="Select Tool"
   >
     <Icon icon="lucide:wrench" class="w-4 h-4" />
     {#if selectedTool}
-      <span class="tool-indicator"></span>
+      <span class="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full border-2 border-gray-950/80"></span>
     {/if}
   </button>
 
   {#if isOpen}
-    <div class="tool-dropdown">
-      <div class="tool-dropdown-header">
+    <div class="absolute bottom-[calc(100%+8px)] left-0 min-w-[320px] bg-gradient-to-br from-gray-950/95 to-gray-900/95 border border-white/10 rounded-xl backdrop-blur-[20px] shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5),0_4px_6px_-2px_rgba(0,0,0,0.1)] z-[1000000] max-md:min-w-[280px] max-md:left-4 max-md:right-4 max-md:w-[calc(100vw-2rem)] max-md:max-w-[350px] max-md:mx-auto max-[480px]:min-w-[250px] max-[480px]:left-3 max-[480px]:right-3 max-[480px]:w-[calc(100vw-1.5rem)] max-[480px]:max-w-[300px]">
+      <div class="flex items-center gap-2 py-3 px-4 border-b border-white/10 text-white text-sm font-medium font-mono">
         <Icon icon="lucide:wrench" class="w-4 h-4" />
         <span>Select Tool</span>
       </div>
 
-      <div class="tool-list">
+      <div class="max-h-[300px] overflow-y-auto py-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-white/30">
         <!-- No Tool Option -->
         <button
           type="button"
-          class="tool-option"
+          class="{getToolOptionStyles(selectedTool === null)}"
           onclick={() => selectTool(null)}
         >
-          <div class="tool-option-content">
-            <div class="tool-option-name">No Tool</div>
-            <div class="tool-option-description">
+          <div class="p-3 flex-1 min-w-0">
+            <div class="text-sm font-medium mb-1 text-white">No Tool</div>
+            <div class="text-xs text-gray-400 leading-[1.4] overflow-hidden text-ellipsis line-clamp-2">
               Chat without using any tool
             </div>
           </div>
@@ -85,14 +104,14 @@
 
         <!-- Loading State -->
         {#if $loading}
-          <div class="tool-loading">
+          <div class="flex items-center gap-2 p-4 text-gray-400 text-sm justify-center font-mono">
             <span>Loading tools...</span>
           </div>
         {/if}
 
         <!-- Error State -->
         {#if $error}
-          <div class="tool-error">
+          <div class="flex items-center gap-2 p-4 text-red-500 text-sm justify-center font-mono">
             <span>Error loading tools</span>
           </div>
         {/if}
@@ -101,21 +120,19 @@
         {#each $tools as tool}
           <button
             type="button"
-            class="tool-option {selectedTool !== null && selectedTool?.toolId === tool.toolId
-              ? 'selected'
-              : ''}"
+            class="{getToolOptionStyles(selectedTool !== null && selectedTool?.toolId === tool.toolId)}"
             onclick={() => selectTool(tool)}
           >
-            <div class="tool-option-content">
-              <div class="tool-option-name">{tool.toolName}</div>
-              <div class="tool-option-description">{tool.toolDescription}</div>
+            <div class="p-3 flex-1 min-w-0">
+              <div class="text-sm font-medium mb-1 text-white">{tool.toolName}</div>
+              <div class="text-xs text-gray-400 leading-[1.4] overflow-hidden text-ellipsis line-clamp-2">{tool.toolDescription}</div>
             </div>
           </button>
         {/each}
 
         <!-- No Tools Available -->
         {#if !$loading && !$error && $tools.length === 0}
-          <div class="tool-empty">
+          <div class="flex items-center gap-2 p-4 text-gray-400 text-sm justify-center font-mono">
             <span>No tools available</span>
           </div>
         {/if}
@@ -123,228 +140,3 @@
     </div>
   {/if}
 </div>
-
-<style>
-  .tool-selector {
-    position: relative;
-    display: inline-block;
-  }
-
-  .tool-btn {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .tool-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-  }
-
-  .tool-btn.active {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(139, 92, 246, 0.2)
-    );
-    border-color: rgba(59, 130, 246, 0.3);
-    color: #3b82f6;
-  }
-
-  .tool-indicator {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    border: 2px solid rgba(15, 15, 15, 0.8);
-  }
-
-  .tool-dropdown {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 0;
-    min-width: 320px;
-    background: linear-gradient(
-      135deg,
-      rgba(15, 15, 15, 0.95) 0%,
-      rgba(26, 26, 26, 0.95) 100%
-    );
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    backdrop-filter: blur(20px);
-    box-shadow:
-      0 10px 25px -5px rgba(0, 0, 0, 0.5),
-      0 4px 6px -2px rgba(0, 0, 0, 0.1);
-    z-index: 1000000;
-    animation: slideIn 0.2s ease-out;
-  }
-
-  .tool-dropdown-header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
-  }
-
-  .tool-list {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 0.5rem 0;
-  }
-
-  .tool-option {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: none;
-    color: white;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
-  }
-
-  .tool-option:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-
-  .tool-option.selected {
-    background: rgba(59, 130, 246, 0.1);
-    color: #93c5fd;
-  }
-
-  .tool-option-content {
-    padding: 0.75rem;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .tool-option-name {
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    color: white;
-  }
-
-  .tool-option-description {
-    font-size: 0.75rem;
-    color: #9ca3af;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    line-clamp: 2;
-  }
-
-  .tool-loading,
-  .tool-error,
-  .tool-empty {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    color: #9ca3af;
-    font-size: 0.875rem;
-    justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
-  }
-
-  .tool-error {
-    color: #ef4444;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-
-  :global(.animate-spin) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .tool-dropdown {
-      min-width: 280px;
-      left: 1rem;
-      right: 1rem;
-      width: calc(100vw - 2rem);
-      max-width: 350px;
-      margin: 0 auto;
-      animation: slideIn 0.2s ease-out;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .tool-dropdown {
-      min-width: 250px;
-      left: 0.75rem;
-      right: 0.75rem;
-      width: calc(100vw - 1.5rem);
-      max-width: 300px;
-      margin: 0 auto;
-      animation: slideIn 0.2s ease-out;
-    }
-  }
-
-  /* Scrollbar styling */
-  .tool-list::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .tool-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-  }
-
-  .tool-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-  }
-
-  .tool-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-</style>
