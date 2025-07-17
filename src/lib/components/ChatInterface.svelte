@@ -101,22 +101,22 @@
   }
 </script>
 
-<main class="chat-container">
+<main class="relative h-full bg-gradient-to-br from-gray-950 to-gray-900 flex flex-col font-mono overflow-hidden">
   <!-- Background Elements -->
-  <div class="background-grid"></div>
-  <div class="background-gradient"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:50px_50px] z-[1]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_0%,transparent_50%)] z-[1]"></div>
 
   <!-- Tool Status Info -->
   <ToolStatus {selectedTool} onClear={clearToolSelection} />
 
   <!-- Error Message Display -->
   {#if errorMessage}
-    <div class="error-banner" role="alert">
+    <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-3 bg-gradient-to-br from-red-500/90 to-red-600/90 border border-red-500/30 rounded-xl p-3 px-4 text-white text-sm font-medium backdrop-blur-md shadow-[0_8px_32px_rgba(239,68,68,0.3)] max-w-[calc(100vw-2rem)]" role="alert">
       <Icon icon="lucide:alert-circle" class="w-5 h-5" />
       <span>{errorMessage}</span>
       <button
         onclick={() => (errorMessage = null)}
-        class="error-close-btn"
+        class="bg-transparent border-none text-white cursor-pointer p-1 rounded flex items-center justify-center transition-colors duration-200 hover:bg-white/20 flex-shrink-0"
         aria-label="Close error message"
       >
         <Icon icon="lucide:x" class="w-4 h-4" />
@@ -125,12 +125,12 @@
   {/if}
 
   <!-- Message list container -->
-  <div bind:this={scrollEl} class="messages-container">
+  <div bind:this={scrollEl} class="flex-1 overflow-y-auto p-8 pt-20 flex flex-col gap-4 relative z-[2] bg-transparent [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-white/5 [&::-webkit-scrollbar-track]:rounded [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-white/30 md:p-8 md:pt-20 max-md:p-4 max-md:pt-16 max-[480px]:p-3 max-[480px]:pt-14">
     {#each $messages as msg}
       <div
         class={msg.role === "user"
-          ? "message-bubble-user"
-          : "message-bubble-assistant"}
+          ? "self-end max-w-[75%] p-4 px-6 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 backdrop-blur-md text-white text-[0.95rem] leading-relaxed break-words hyphens-auto transition-all duration-300 shadow-[0_4px_16px_rgba(59,130,246,0.2)] hover:from-blue-500/30 hover:to-purple-500/30 hover:border-blue-500/40 hover:shadow-[0_8px_32px_rgba(59,130,246,0.3)] max-md:max-w-[90%] max-md:p-3.5 max-md:px-5 max-md:text-[0.9rem] max-[480px]:max-w-[95%] max-[480px]:p-3 max-[480px]:px-4 max-[480px]:text-sm"
+          : "self-start max-w-[75%] p-4 px-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md text-white text-[0.95rem] leading-relaxed break-words hyphens-auto transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.1)] hover:bg-white/10 hover:border-white/20 hover:shadow-[0_8px_32px_rgba(255,255,255,0.1)] max-md:max-w-[90%] max-md:p-3.5 max-md:px-5 max-md:text-[0.9rem] max-[480px]:max-w-[95%] max-[480px]:p-3 max-[480px]:px-4 max-[480px]:text-sm"}
       >
         {msg.content}
       </div>
@@ -138,11 +138,11 @@
   </div>
 
   <!-- Message input form -->
-  <form onsubmit={handleSubmit} class="chat-input-container">
+  <form onsubmit={handleSubmit} class="relative z-[2] p-6 bg-transparent border-t-0 min-h-auto max-md:p-4 max-[480px]:p-3">
     <!-- Input Field with Tools -->
-    <div class="chat-input-wrapper {inputFocused ? 'focused' : ''}">
+    <div class="relative flex items-center max-w-[800px] mx-auto bg-white/5 border-2 border-white/10 rounded-2xl p-4 px-6 transition-all duration-300 backdrop-blur-md {inputFocused ? 'border-blue-500 bg-blue-500/10 shadow-[0_0_32px_rgba(59,130,246,0.2)]' : ''} max-md:p-3.5 max-md:px-4 max-[480px]:p-3 max-[480px]:px-3.5">
       <!-- Tools Section -->
-      <div class="tools-section">
+      <div class="flex items-center mr-3 flex-shrink-0">
         <ToolSelector onToolSelect={handleToolSelect} {selectedTool} />
       </div>
 
@@ -151,7 +151,7 @@
         bind:this={inputEl}
         bind:value={$content}
         placeholder="Type your message..."
-        class="chat-input"
+        class="flex-1 bg-transparent border-none outline-none shadow-none text-lg text-white font-inherit leading-6 mx-3 resize-none min-h-[24px] max-h-[120px] overflow-y-auto transition-[height] duration-200 focus:outline-none focus:shadow-none focus:border-none placeholder:text-slate-500"
         rows="1"
         onfocus={() => (inputFocused = true)}
         onblur={() => (inputFocused = false)}
@@ -162,7 +162,7 @@
       <!-- Send Button -->
       <button
         type="submit"
-        class="chat-send-btn"
+        class="bg-gradient-to-br from-blue-500 to-purple-500 border-none rounded-xl p-3 text-white cursor-pointer transition-all duration-300 flex items-center justify-center min-w-[48px] h-12 shadow-[0_4px_16px_rgba(59,130,246,0.3)] flex-shrink-0 hover:not(:disabled):-translate-y-0.5 hover:not(:disabled):shadow-[0_8px_32px_rgba(59,130,246,0.4)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         disabled={!$content.trim() || isSubmitting}
         title={isSubmitting ? "Sending..." : "Send message"}
       >
@@ -176,354 +176,3 @@
   </form>
 </main>
 
-<style>
-  .chat-container {
-    position: relative;
-    height: 100%;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-    display: flex;
-    flex-direction: column;
-    font-family: var(--font-mono);
-    overflow: hidden;
-  }
-
-  .background-grid {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-        rgba(255, 255, 255, 0.02) 1px,
-        transparent 1px
-      ),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 20s linear infinite;
-    z-index: 1;
-  }
-
-  .background-gradient {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba(59, 130, 246, 0.1) 0%,
-      transparent 50%
-    );
-    z-index: 1;
-  }
-
-  .error-banner {
-    position: absolute;
-    top: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 30;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: linear-gradient(
-      135deg,
-      rgba(239, 68, 68, 0.9),
-      rgba(220, 38, 38, 0.9)
-    );
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 12px;
-    padding: 0.75rem 1rem;
-    color: white;
-    font-size: 0.875rem;
-    font-weight: 500;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.3);
-    animation: slideInError 0.3s ease-out;
-    max-width: calc(100vw - 2rem);
-  }
-
-  .error-close-btn {
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
-  }
-
-  .error-close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  @keyframes grid-move {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(50px, 50px);
-    }
-  }
-
-  .messages-container {
-    flex: 1;
-    overflow-y: auto;
-    padding: 2rem;
-    padding-top: 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    position: relative;
-    z-index: 2;
-    background: transparent;
-  }
-
-  .message-bubble-user {
-    align-self: flex-end;
-    max-width: 75%;
-    padding: 1rem 1.5rem;
-    border-radius: 16px;
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(139, 92, 246, 0.2)
-    );
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    backdrop-filter: blur(10px);
-    color: white;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-  }
-
-  .message-bubble-assistant {
-    align-self: flex-start;
-    max-width: 75%;
-    padding: 1rem 1.5rem;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    color: white;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    word-wrap: break-word;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .message-bubble-user:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.3),
-      rgba(139, 92, 246, 0.3)
-    );
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
-  }
-
-  .message-bubble-assistant:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
-  }
-
-  .chat-input-container {
-    position: relative;
-    z-index: 2;
-    padding: 1.5rem;
-    background: transparent;
-    border-top: none;
-    min-height: auto;
-  }
-
-  .chat-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    max-width: 800px;
-    margin: 0 auto;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .chat-input-wrapper.focused {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-    box-shadow: 0 0 32px rgba(59, 130, 246, 0.2);
-  }
-
-  .chat-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    box-shadow: none;
-    font-size: 1.125rem;
-    color: white;
-    font-family: inherit;
-    line-height: 1.5;
-    margin: 0 12px;
-    resize: none;
-    min-height: 24px;
-    max-height: 120px;
-    overflow-y: auto;
-    transition: height 0.2s ease;
-  }
-
-  .chat-input:focus {
-    outline: none;
-    box-shadow: none;
-    border: none;
-  }
-
-  .chat-input::placeholder {
-    color: #64748b;
-  }
-
-  .chat-send-btn {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border: none;
-    border-radius: 12px;
-    padding: 0.75rem;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 48px;
-    height: 48px;
-    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-    flex-shrink: 0;
-  }
-
-  .chat-send-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
-  }
-
-  .chat-send-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .tools-section {
-    display: flex;
-    align-items: center;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInError {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  }
-
-  :global(.animate-spin) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .messages-container {
-      padding: 1rem;
-      padding-top: 4rem;
-    }
-
-    .chat-input-container {
-      padding: 1rem;
-      min-height: auto;
-    }
-
-    .message-bubble-user,
-    .message-bubble-assistant {
-      max-width: 90%;
-      padding: 0.875rem 1.25rem;
-      font-size: 0.9rem;
-    }
-
-    .chat-input-wrapper {
-      padding: 0.875rem 1rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .messages-container {
-      padding: 0.75rem;
-      padding-top: 3.5rem;
-    }
-
-    .message-bubble-user,
-    .message-bubble-assistant {
-      max-width: 95%;
-      padding: 0.75rem 1rem;
-      font-size: 0.875rem;
-    }
-
-    .chat-input-container {
-      padding: 0.75rem;
-    }
-
-    .chat-input-wrapper {
-      padding: 0.75rem 0.875rem;
-    }
-  }
-
-  /* Scrollbar Styling */
-  .messages-container::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .messages-container::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 3px;
-  }
-
-  .messages-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-  }
-
-  .messages-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-</style>

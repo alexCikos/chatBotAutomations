@@ -204,7 +204,7 @@
 <!-- Mobile Backdrop (only show on mobile when expanded) -->
 {#if !$sidebarStore}
   <div
-    class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30 mobile-backdrop"
+    class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30 max-md:top-16 max-md:h-[calc(100vh-64px)]"
     onclick={toggleSidebar}
     onkeydown={(e) => e.key === "Enter" && toggleSidebar()}
     aria-label="Close sidebar"
@@ -224,17 +224,17 @@
 
 <!-- Main Sidebar Container -->
 <main
-  class="{($sidebarStore && !isMobile()) ? 'sidebar-collapsed' : 'sidebar-expanded'} 
-         {($sidebarStore && isMobile()) ? 'mobile-hidden' : ''}
+  class="{($sidebarStore && !isMobile()) ? 'w-[60px] min-w-[60px]' : 'w-1/5 min-w-[250px] max-md:w-[280px] max-md:fixed max-md:top-16 max-md:left-0 max-md:z-40 max-md:h-[calc(100vh-64px)]'} 
+         {($sidebarStore && isMobile()) ? 'max-md:-translate-x-full' : ''}
          h-full bg-neutral-900 border-r border-gray-800 flex flex-col transition-all duration-300 ease-in-out
          md:relative md:z-auto"
 >
   {#if $sidebarStore && !isMobile()}
     <!-- Collapsed State: Icon Strip (Desktop only) -->
-    <div class="collapsed-sidebar">
+    <div class="flex flex-col items-center py-4 gap-4">
       <!-- Expand Button -->
       <button
-        class="icon-btn-collapsed"
+        class="p-3 rounded-lg bg-transparent text-gray-300 transition-all duration-150 flex items-center justify-center w-11 h-11 border-none cursor-pointer hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900"
         onclick={toggleSidebar}
         aria-label="Expand Sidebar"
         title="Expand Sidebar"
@@ -244,7 +244,7 @@
 
       <!-- New Chat Icon -->
       <button
-        class="icon-btn-collapsed"
+        class="p-3 rounded-lg bg-transparent text-gray-300 transition-all duration-150 flex items-center justify-center w-11 h-11 border-none cursor-pointer hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900"
         onclick={handleNewChatClick}
         aria-label="New Chat"
         title="New Chat"
@@ -254,7 +254,7 @@
 
       <!-- Search Icon -->
       <button
-        class="icon-btn-collapsed"
+        class="p-3 rounded-lg bg-transparent text-gray-300 transition-all duration-150 flex items-center justify-center w-11 h-11 border-none cursor-pointer hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-900"
         onclick={handleSearchClick}
         aria-label="Search Chats"
         title="Search Chats"
@@ -270,7 +270,7 @@
       class="flex items-center justify-between px-4 py-3 border-b border-gray-800"
     >
       <button
-        class="btn btn-sm btn-ghost flex items-center gap-2"
+        class="inline-flex items-center justify-center font-mono font-medium transition-colors duration-150 outline-none opacity-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black text-sm py-2 px-3 rounded-lg bg-transparent text-gray-300 border border-transparent hover:bg-gray-700 gap-2"
         onclick={handleNewChatClick}
         aria-label="New Chat"
       >
@@ -289,9 +289,9 @@
     </section>
 
     <!-- Main content area with chat list -->
-    <div class="sidebar-content flex-1 overflow-y-auto">
+    <div class="flex-1 overflow-y-auto">
       {#if loadingError}
-        <div class="error-message">
+        <div class="flex items-center gap-2 p-4 m-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm text-left">
           <Icon icon="lucide:alert-circle" class="w-4 h-4" />
           <span>{loadingError}</span>
         </div>
@@ -299,16 +299,16 @@
       
       {#each $chats as chat}
         <div
-          class="flex items-center justify-between px-4 py-3 hover:bg-gray-800 border-b border-gray-800"
+          class="flex items-center justify-between px-4 py-3 hover:bg-gray-800 border-b border-gray-800 group"
         >
           <a
             href={"/chat/" + chat.id}
-            class="flex-1 text-gray-300 hover:text-white transition-colors duration-150 chat-link"
+            class="flex-1 text-gray-300 hover:text-white transition-colors duration-150 block"
             onclick={handleChatSelect}
           >
-            <div class="chat-title truncate">{chat.title}</div>
+            <div class="text-sm font-medium leading-tight truncate">{chat.title}</div>
             {#if chat.description}
-              <div class="chat-description truncate">{chat.description}</div>
+              <div class="text-xs text-gray-400 leading-snug mt-1 max-w-[180px] truncate group-hover:text-gray-300">{chat.description}</div>
             {/if}
           </a>
           <div class="relative">
@@ -378,204 +378,3 @@
   />
 {/if}
 
-<style>
-  .sidebar-expanded {
-    width: 20%; /* Same as w-1/5 */
-    min-width: 250px;
-  }
-
-  .sidebar-collapsed {
-    width: 60px;
-    min-width: 60px;
-  }
-
-  .collapsed-sidebar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 0;
-    gap: 1rem;
-  }
-
-  .icon-btn-collapsed {
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    background-color: transparent;
-    color: rgb(209 213 219);
-    transition: all 150ms;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border: none;
-    cursor: pointer;
-  }
-
-  .icon-btn-collapsed:hover {
-    background-color: rgb(31 41 55);
-    color: white;
-  }
-
-  .icon-btn-collapsed:focus {
-    outline: none;
-    box-shadow:
-      0 0 0 2px white,
-      0 0 0 4px rgb(23 23 23);
-  }
-
-  /* Ensure smooth transitions for width changes */
-  .sidebar-expanded,
-  .sidebar-collapsed {
-    transition:
-      width 0.3s ease-in-out,
-      min-width 0.3s ease-in-out;
-  }
-
-  /* Hide scrollbar in collapsed state */
-  .sidebar-collapsed {
-    overflow: hidden;
-  }
-
-  /* Button Components */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco,
-      Consolas, "Liberation Mono", "Courier New", monospace;
-    font-weight: 500;
-    transition: colors 150ms;
-    outline: none;
-    opacity: 1;
-    cursor: pointer;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn:focus {
-    outline: none;
-    box-shadow:
-      0 0 0 2px white,
-      0 0 0 4px black;
-  }
-
-  .btn-sm {
-    font-size: 0.875rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-  }
-
-  .btn-ghost {
-    background: transparent;
-    color: rgb(209 213 219);
-    border: 1px solid transparent;
-  }
-
-  .btn-ghost:hover {
-    background: rgb(55 65 81);
-  }
-
-  .btn-ghost:focus {
-    box-shadow: 0 0 0 2px white;
-  }
-
-  /* Mobile backdrop animation */
-  .mobile-backdrop {
-    animation: fadeIn 0.3s ease-in-out;
-  }
-
-  @media (max-width: 768px) {
-    .mobile-backdrop {
-      top: 64px; /* Start below navbar */
-      height: calc(100vh - 64px);
-    }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* Chat item styling */
-  .chat-link {
-    display: block;
-  }
-
-  .chat-title {
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.2;
-  }
-
-  .chat-description {
-    font-size: 0.75rem;
-    color: rgb(156 163 175); /* gray-400 */
-    line-height: 1.3;
-    margin-top: 0.25rem;
-    max-width: 180px;
-  }
-
-  .chat-link:hover .chat-description {
-    color: rgb(209 213 219); /* gray-300 */
-  }
-
-  .error-message {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    margin: 0.5rem;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-    color: #fca5a5;
-    font-size: 0.875rem;
-    text-align: left;
-  }
-
-  /* Responsive behavior */
-  @media (max-width: 768px) {
-    .sidebar-expanded {
-      width: 280px;
-      position: fixed;
-      top: 64px; /* Start below navbar */
-      left: 0;
-      z-index: 40;
-      height: calc(100vh - 64px); /* Account for navbar height */
-      transition: transform 0.3s ease-in-out;
-    }
-
-    /* On mobile, when sidebar is "collapsed", it should be hidden completely */
-    .sidebar-expanded.mobile-hidden {
-      transform: translateX(-100%);
-    }
-
-    .sidebar-collapsed {
-      position: fixed;
-      top: 64px; /* Start below navbar */
-      left: 0;
-      z-index: 40;
-      height: calc(100vh - 64px); /* Account for navbar height */
-      transform: translateX(-100%);
-      transition: transform 0.3s ease-in-out;
-      /* On mobile, collapsed sidebar should be hidden completely */
-      width: 0;
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    /* Override the default transition for mobile */
-    .sidebar-expanded,
-    .sidebar-collapsed {
-      transition: transform 0.3s ease-in-out;
-    }
-  }
-</style>
