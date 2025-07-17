@@ -5,15 +5,19 @@ import { ToolExecuteRequestSchema, LogicAppResponseSchema, type ToolExecuteRespo
 export const POST: RequestHandler = async ({ request }) => {
   try {
     const requestData = await request.json();
+    
+    // Debug: Log the incoming request data
+    console.log('Tool execution request data:', requestData);
 
     // Validate request data using Zod schema
     const validationResult = ToolExecuteRequestSchema.safeParse(requestData);
     
     if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.issues);
       return json(
         { 
           success: false, 
-          error: `Invalid request data: ${validationResult.error.issues.map(i => i.message).join(', ')}` 
+          error: `Invalid request data: ${validationResult.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ')}` 
         },
         { status: 400 }
       );
