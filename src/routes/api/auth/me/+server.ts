@@ -64,6 +64,6 @@ export const GET: RequestHandler = async ({ request, fetch, url }) => {
     }
   } catch (error) {
     console.log('Error fetching /.auth/me:', error);
-    return json({ success: false, error: 'Error fetching auth info', details: error.message });
+    return json({ success: false, error: 'Error fetching auth info', details: error instanceof Error ? error.message : String(error) });
   }
 };

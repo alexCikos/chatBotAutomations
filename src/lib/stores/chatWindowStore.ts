@@ -67,7 +67,7 @@ function createChatWindowStore() {
   }
 
   /**
-   * Calls the actual tool endpoint and processes the response
+   * Calls the server-side tool execution endpoint and processes the response
    */
   async function callToolEndpoint(
     chatId: string,
@@ -76,55 +76,56 @@ function createChatWindowStore() {
     userID: string
   ) {
     try {
-      console.log(`Calling tool endpoint: ${tool.azureLogicAppEndpoint}`, {
+      console.log(`Calling server-side tool execution for: ${tool.toolName}`, {
         message: userMessage,
         toolId: tool.toolId,
         userId: userID,
       });
 
-      // Call the actual Azure Logic App endpoint
-      const response = await fetch(tool.azureLogicAppEndpoint, {
+      // Call the server-side tool execution endpoint
+      const response = await fetch("/api/tools/execute", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          userId: userID,
+          toolId: tool.toolId,
           input: userMessage,
         }),
       });
 
-      let toolResponse: string;
+      const responseData = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || !responseData.success) {
         throw new Error(
-          `Tool endpoint returned ${response.status}: ${response.statusText}`
+          responseData.error || `Server returned ${response.status}: ${response.statusText}`
         );
       }
 
-      // Try to parse the response
-      try {
-        const responseData = await response.json();
-
-        // Handle different response formats
-        if (typeof responseData === "string") {
-          toolResponse = responseData;
-        } else if (responseData.message) {
-          toolResponse = responseData.message;
-        } else if (responseData.result) {
-          toolResponse = responseData.result;
-        } else if (responseData.response) {
-          toolResponse = responseData.response;
+      // Extract the tool response from the server response
+      let toolResponse: string;
+      
+      if (typeof responseData.result === "string") {
+        toolResponse = responseData.result;
+      } else if (typeof responseData.result === "object") {
+        // Handle different response formats from the tool
+        if (responseData.result.message) {
+          toolResponse = responseData.result.message;
+        } else if (responseData.result.result) {
+          toolResponse = responseData.result.result;
+        } else if (responseData.result.response) {
+          toolResponse = responseData.result.response;
         } else {
-          toolResponse = JSON.stringify(responseData, null, 2);
+          toolResponse = JSON.stringify(responseData.result, null, 2);
         }
-      } catch (parseError) {
-        // If JSON parsing fails, use the raw text response
-        toolResponse = await response.text();
+      } else {
+        toolResponse = String(responseData.result);
       }
 
       // Ensure we have a valid response
       if (!toolResponse || toolResponse.trim() === "") {
-        throw new Error("Tool endpoint returned empty response");
+        throw new Error("Tool returned empty response");
       }
 
       const assistantMessage: Message = {
@@ -132,7 +133,7 @@ function createChatWindowStore() {
         chatId,
         userId: "assistant",
         role: "assistant",
-        content: `🔧 **${tool.toolName}** responded:\n\n${toolResponse}`,
+        content: `🔧 **${responseData.toolName || tool.toolName}** responded:\n\n${toolResponse}`,
         createdAt: new Date().toISOString(),
       };
 
@@ -152,14 +153,13 @@ function createChatWindowStore() {
 
       if (error instanceof Error) {
         if (error.message.includes("Failed to fetch")) {
-          errorMessage = `❌ Unable to connect to ${tool.toolName}. The tool endpoint may be unavailable or there's a network issue.`;
+          errorMessage = `❌ Unable to connect to server for ${tool.toolName}. Please check your connection and try again.`;
         } else if (error.message.includes("empty response")) {
           errorMessage = `❌ ${tool.toolName} returned an empty response. Please check the tool configuration.`;
-        } else if (
-          error.message.includes("returned 4") ||
-          error.message.includes("returned 5")
-        ) {
-          errorMessage = `❌ ${tool.toolName} encountered an error: ${error.message}`;
+        } else if (error.message.includes("Tool not found")) {
+          errorMessage = `❌ ${tool.toolName} is not available or access was denied.`;
+        } else if (error.message.includes("Tool execution failed")) {
+          errorMessage = `❌ ${tool.toolName} encountered an error during execution: ${error.message}`;
         } else {
           errorMessage = `❌ Error processing request with ${tool.toolName}: ${error.message}`;
         }

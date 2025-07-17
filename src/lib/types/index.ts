@@ -66,3 +66,20 @@ export type Tool = z.infer<typeof ToolSchema>;
 export type ToolData = {
   tools: Tool[]; // Array of tools
 };
+
+// API request/response schemas for tool execution
+export const ToolExecuteRequestSchema = z.object({
+  userId: z.string(),
+  toolId: z.string(),
+  input: z.string(),
+});
+
+export const ToolExecuteResponseSchema = z.object({
+  success: z.boolean(),
+  result: z.any().optional(),
+  toolName: z.string().optional(),
+  error: z.string().optional(),
+});
+
+export type ToolExecuteRequest = z.infer<typeof ToolExecuteRequestSchema>;
+export type ToolExecuteResponse = z.infer<typeof ToolExecuteResponseSchema>;
