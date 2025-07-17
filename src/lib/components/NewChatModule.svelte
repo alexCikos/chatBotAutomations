@@ -67,7 +67,7 @@
 </script>
 
 <div
-  class="modal-backdrop"
+  class="fixed inset-0 bg-black/80 backdrop-blur-[20px] z-[9999] flex items-center justify-center p-8 max-md:p-4"
   onclick={closeModal}
   onkeydown={(e) => e.key === "Escape" && closeModal()}
   role="dialog"
@@ -75,20 +75,20 @@
   tabindex="-1"
 >
   <div
-    class="modal"
+    class=""
     onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.stopPropagation()}
     role="document"
   >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">New Chat</h2>
+    <div class="bg-gradient-to-br from-gray-950/95 to-gray-900/95 border border-white/10 rounded-[20px] p-8 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.05),inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-[20px] max-w-[420px] w-full relative overflow-hidden max-md:p-6 max-md:rounded-2xl max-md:max-w-full before:content-[''] before:absolute before:top-0 before:left-0 before:right-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-blue-500/50 before:to-transparent">
+      <div class="mb-8 text-center relative">
+        <h2 class="text-2xl font-semibold m-0 font-mono bg-gradient-to-br from-white to-slate-300 bg-clip-text text-transparent max-md:text-xl">New Chat</h2>
       </div>
 
-      <form onsubmit={handleSubmit} class="modal-form">
-        <div class="modal-body">
+      <form onsubmit={handleSubmit} class="flex flex-col gap-8">
+        <div class="flex flex-col gap-4">
           {#if errorMessage}
-            <div class="error-message" role="alert">
+            <div class="flex items-center gap-2 py-3 px-4 mb-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm" role="alert">
               <Icon icon="lucide:alert-circle" class="w-4 h-4" />
               <span>{errorMessage}</span>
             </div>
@@ -98,22 +98,22 @@
             type="text"
             bind:value={$content}
             placeholder="Enter chat title..."
-            class="modal-input"
+            class="w-full p-4 px-5 bg-white/[0.03] border border-white/10 rounded-2xl text-white text-lg font-mono transition-all duration-300 box-border backdrop-blur-md focus:outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_0_1px_rgba(59,130,246,0.3),0_8px_32px_rgba(59,130,246,0.1)] focus:-translate-y-px placeholder:text-slate-500 placeholder:font-normal max-md:text-base max-md:py-3.5 max-md:px-4"
             disabled={isSubmitting}
           />
           <textarea
             bind:value={description}
             placeholder="Enter a short description (optional)..."
-            class="modal-input modal-textarea"
+            class="w-full p-4 px-5 bg-white/[0.03] border border-white/10 rounded-2xl text-white text-lg font-mono transition-all duration-300 box-border backdrop-blur-md focus:outline-none focus:border-blue-500/50 focus:bg-blue-500/5 focus:shadow-[0_0_0_1px_rgba(59,130,246,0.3),0_8px_32px_rgba(59,130,246,0.1)] focus:-translate-y-px placeholder:text-slate-500 placeholder:font-normal resize-none min-h-[60px] font-inherit leading-6 max-md:text-base max-md:py-3.5 max-md:px-4"
             rows="2"
             disabled={isSubmitting}
           ></textarea>
         </div>
 
-        <div class="modal-footer">
+        <div class="flex gap-4 justify-end max-md:flex-col max-md:gap-3">
           <button 
             type="button" 
-            class="btn btn-secondary" 
+            class="inline-flex items-center justify-center font-mono font-medium transition-all duration-300 ease-in-out outline-none cursor-pointer gap-2 py-3 px-6 rounded-xl text-sm border relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white/5 text-slate-300 border-white/10 backdrop-blur-md hover:bg-white/10 hover:border-white/20 hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] active:translate-y-0 max-md:justify-center max-md:w-full" 
             onclick={closeModal}
             disabled={isSubmitting}
           >
@@ -123,7 +123,7 @@
 
           <button
             type="submit"
-            class="btn btn-primary"
+            class="inline-flex items-center justify-center font-mono font-medium transition-all duration-300 ease-in-out outline-none cursor-pointer gap-2 py-3 px-6 rounded-xl text-sm border relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-gradient-to-br from-blue-500 to-purple-500 text-white border-blue-500/30 shadow-[0_4px_16px_rgba(59,130,246,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] hover:not(:disabled):-translate-y-0.5 hover:not(:disabled):shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_0_rgba(255,255,255,0.2)] active:translate-y-0 max-md:justify-center max-md:w-full"
             disabled={!$content.trim() || isSubmitting}
           >
             {#if isSubmitting}
@@ -140,286 +140,3 @@
   </div>
 </div>
 
-<style>
-  .modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(20px);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  .modal-content {
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(26, 26, 26, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 
-      0 25px 50px -12px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.05),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    max-width: 420px;
-    width: 100%;
-    animation: slideIn 0.3s ease-out 0.1s both;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .modal-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
-  }
-
-  .modal-header {
-    margin-bottom: 2rem;
-    text-align: center;
-    position: relative;
-  }
-
-  .modal-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: white;
-    margin: 0;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .modal-body {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .modal-input {
-    width: 100%;
-    padding: 1rem 1.25rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    color: white;
-    font-size: 1.125rem;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    backdrop-filter: blur(10px);
-  }
-
-  .modal-input:focus {
-    outline: none;
-    border-color: rgba(59, 130, 246, 0.5);
-    background: rgba(59, 130, 246, 0.05);
-    box-shadow: 
-      0 0 0 1px rgba(59, 130, 246, 0.3),
-      0 8px 32px rgba(59, 130, 246, 0.1);
-    transform: translateY(-1px);
-  }
-
-  .modal-input::placeholder {
-    color: #64748b;
-    font-weight: 400;
-  }
-
-  .modal-textarea {
-    resize: none;
-    min-height: 60px;
-    font-family: inherit;
-    line-height: 1.5;
-  }
-
-  .modal-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
-
-  /* Button Components */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    outline: none;
-    cursor: pointer;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    border: 1px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: inherit;
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    color: white;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    box-shadow: 
-      0 4px 16px rgba(59, 130, 246, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 
-      0 8px 32px rgba(59, 130, 246, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-
-  .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-  }
-
-  .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-
-  .btn-secondary:active {
-    transform: translateY(0);
-  }
-
-  .error-message {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 8px;
-    color: #fca5a5;
-    font-size: 0.875rem;
-  }
-
-  :global(.animate-spin) {
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .modal-backdrop {
-      padding: 1rem;
-    }
-
-    .modal-content {
-      padding: 1.5rem;
-      border-radius: 16px;
-      max-width: 100%;
-    }
-
-    .modal-title {
-      font-size: 1.25rem;
-    }
-
-    .modal-input {
-      font-size: 1rem;
-      padding: 0.875rem 1rem;
-    }
-
-    .modal-footer {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .btn {
-      justify-content: center;
-      width: 100%;
-    }
-  }
-
-  /* Enhanced visual effects */
-  @media (prefers-reduced-motion: no-preference) {
-    .modal-content {
-      animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    .btn {
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-  }
-</style>

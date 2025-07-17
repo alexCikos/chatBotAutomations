@@ -21,172 +21,36 @@
   }
 </script>
 
-<nav class="navbar">
+<nav class="fixed top-0 left-0 right-0 z-50 h-16 bg-gray-950/80 border-b border-white/10 backdrop-blur-[20px] font-mono">
   <!-- Background Elements -->
-  <div class="navbar-background"></div>
+  <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-50"></div>
 
   <!-- Content -->
-  <div class="navbar-content">
+  <div class="relative z-[1] h-full w-full flex items-center justify-between px-8 max-md:px-4">
     <!-- Left: Mobile Menu Button and Logo -->
-    <div class="navbar-left">
+    <div class="flex items-center gap-4">
       {#if page.route.id !== "/"}
         <button
-          class="mobile-menu-btn"
+          class="p-2 bg-white/10 border border-white/20 rounded-lg text-white cursor-pointer transition-all duration-200 hidden items-center justify-center hover:bg-white/20 hover:border-white/30 max-md:flex"
           onclick={toggleSidebar}
           aria-label="Toggle Sidebar"
         >
           <Icon icon="lucide:menu" class="w-5 h-5" />
         </button>
       {/if}
-      <a href="/" class="navbar-brand">
-        <img src={logoUrl} alt="Logo" class="brand-logo" />
+      <a href="/" class="">
+        <img src={logoUrl} alt="Logo" class="w-[90px] h-[90px]" />
       </a>
     </div>
 
     <!-- Right: Welcome, Avatar, and Logout -->
-    <div class="navbar-user">
-      <span class="welcome-text">Welcome, {businessName}</span>
-      <img src={logoUrl} alt="Business Avatar" class="user-avatar-img" />
-      <button class="logout-btn" onclick={logout} aria-label="Logout">
+    <div class="flex items-center gap-4 max-md:gap-2">
+      <span class="text-sm text-slate-400 font-medium max-md:hidden">Welcome, {businessName}</span>
+      <img src={logoUrl} alt="Business Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-white/20 transition-all duration-300 cursor-pointer hover:border-white/40 hover:scale-105" />
+      <button class="p-2 bg-white/10 border border-white/20 rounded-lg text-slate-400 cursor-pointer transition-all duration-200 flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/30 hover:text-red-500 max-md:p-1.5" onclick={logout} aria-label="Logout">
         <Icon icon="lucide:log-out" class="w-4 h-4" />
       </button>
     </div>
   </div>
 </nav>
 
-<style>
-  .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    height: 64px;
-    background: rgba(15, 15, 15, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    font-family: var(--font-mono);
-  }
-
-  .navbar-background {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      90deg,
-      rgba(59, 130, 246, 0.1) 0%,
-      rgba(139, 92, 246, 0.1) 100%
-    );
-    opacity: 0.5;
-  }
-
-  .navbar-content {
-    position: relative;
-    z-index: 1;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 2rem;
-  }
-
-  .navbar-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .mobile-menu-btn {
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: none; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-  }
-
-  .mobile-menu-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  .brand-logo {
-    width: 90px;
-    height: 90px;
-  }
-
-  .navbar-user {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .welcome-text {
-    font-size: 0.875rem;
-    color: #94a3b8;
-    font-weight: 500;
-  }
-
-  .user-avatar-img {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-
-  .user-avatar-img:hover {
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
-  }
-
-  .logout-btn {
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0.5rem;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: #ef4444;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .navbar-content {
-      padding: 0 1rem;
-    }
-
-    .mobile-menu-btn {
-      display: flex; /* Show on mobile */
-    }
-
-    .welcome-text {
-      display: none;
-    }
-
-    .navbar-user {
-      gap: 0.5rem;
-    }
-
-    .logout-btn {
-      padding: 0.375rem;
-    }
-  }
-
-  /* Note: body padding-top is now handled in +layout.svelte */
-</style>
