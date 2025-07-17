@@ -11,6 +11,32 @@
   let inputFocused = $state(false);
   let mounted = $state(false);
 
+  // Helper functions for complex class combinations
+  function getSearchWrapperStyles(focused: boolean) {
+    const baseStyles = "relative flex items-center bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-6 transition-all duration-300 backdrop-blur-[10px] max-md:py-3.5 max-md:px-4";
+    const focusedStyles = "border-blue-500 bg-blue-500/10 shadow-[0_0_32px_rgba(59,130,246,0.2)]";
+    return focused ? `${baseStyles} ${focusedStyles}` : baseStyles;
+  }
+
+  function getSuggestionItemStyles(type: string) {
+    const baseStyles = "flex items-center w-full py-3 px-4 bg-transparent border-none text-white cursor-pointer transition-all duration-200 text-left hover:bg-blue-500/10";
+    const chatStyles = "border-l-[3px] border-l-purple-500/30 hover:border-l-purple-500/60 hover:bg-purple-500/10";
+    const commandStyles = "border-l-[3px] border-l-blue-500/30 hover:border-l-blue-500/60";
+    
+    if (type === 'chat') {
+      return `${baseStyles} ${chatStyles}`;
+    } else {
+      return `${baseStyles} ${commandStyles}`;
+    }
+  }
+
+  function getActionCardStyles(isPrimary: boolean) {
+    const baseStyles = "flex flex-col items-center gap-3 p-6 bg-white/5 border border-white/10 rounded-xl cursor-pointer transition-all duration-300 backdrop-blur-[10px] hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.2)]";
+    const primaryStyles = "bg-gradient-to-br from-blue-500/20 to-purple-500/20 border-blue-500/30 hover:from-blue-500/30 hover:to-purple-500/30";
+    
+    return isPrimary ? `${baseStyles} ${primaryStyles}` : baseStyles;
+  }
+
   const { chats, loadChats } = sideBarChatsStore;
   const userId = $userStore?.id;
 
@@ -121,62 +147,60 @@
   });
 </script>
 
-<div class="home-container">
+<div class="relative min-h-screen bg-gradient-to-br from-gray-950 to-gray-800 flex items-center justify-center p-8 font-mono overflow-hidden max-md:p-4">
   <!-- Background Elements -->
-  <div class="background-grid"></div>
-  <div class="background-gradient"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:50px_50px]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1)_0%,transparent_50%)]"></div>
 
   <!-- Main Content -->
-  <div class="content-wrapper {mounted ? 'animate-in' : 'opacity-0'}">
+  <div class="relative z-[1] max-w-[800px] w-full transition-all duration-[600ms] ease-out {mounted ? 'opacity-100' : 'opacity-0'} max-md:max-w-full">
     <!-- Header Section -->
-    <div class="header-section">
-      <div class="logo-section">
-        <div class="logo-icon">
+    <div class="text-center mb-12">
+      <div class="flex flex-col items-center gap-4">
+        <div class="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-[20px] text-white shadow-[0_8px_32px_rgba(59,130,246,0.3)]">
           <Icon icon="lucide:message-circle" class="w-12 h-12" />
         </div>
-        <h1 class="main-title">Speak. Search. Solve.</h1>
-        <p class="subtitle">Your intelligent conversation companion</p>
+        <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent m-0 tracking-[-0.02em] max-md:text-3xl max-[480px]:text-2xl">Speak. Search. Solve.</h1>
+        <p class="text-xl text-slate-400 m-0 font-normal max-md:text-lg max-[480px]:text-base max-md:px-4">Your intelligent conversation companion</p>
       </div>
     </div>
 
     <!-- Search Section -->
-    <div class="search-section">
-      <div class="search-container">
-        <div class="search-wrapper {inputFocused ? 'focused' : ''}">
+    <div class="mb-12">
+      <div class="relative max-w-[600px] mx-auto">
+        <div class="{getSearchWrapperStyles(inputFocused)}">
           <input
             bind:value={$input}
             onfocus={() => (inputFocused = true)}
             onblur={() => (inputFocused = false)}
             onkeydown={(e) => e.key === "Enter" && handleEnter($suggestions)}
             placeholder="What would you like to do?"
-            class="search-input"
+            class="flex-1 bg-transparent border-none outline-none text-lg text-white font-inherit placeholder:text-slate-600"
           />
 
-          <Icon icon="lucide:search" class="search-icon" />
+          <Icon icon="lucide:search" class="text-slate-400" />
         </div>
 
         <!-- Search Suggestions -->
         {#if $suggestions.length > 0}
-          <div class="suggestions-dropdown">
+          <div class="absolute bottom-[calc(100%+8px)] left-0 right-0 bg-gray-800/95 border border-white/10 rounded-xl mb-2 overflow-hidden backdrop-blur-[10px] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             {#each $suggestions as item}
               <button
                 type="button"
-                class="suggestion-item {item.type === 'chat'
-                  ? 'suggestion-chat'
-                  : 'suggestion-command'}"
+                class="{getSuggestionItemStyles(item.type)}"
                 onclick={() => item.action()}
               >
-                <div class="suggestion-icon">
+                <div class="mr-3 text-blue-500">
                   <Icon icon={item.icon} class="w-5 h-5" />
                 </div>
-                <div class="suggestion-content">
-                  <div class="suggestion-label">{item.label}</div>
-                  <div class="suggestion-desc">{item.description}</div>
+                <div class="flex-1">
+                  <div class="font-medium mb-0.5">{item.label}</div>
+                  <div class="text-sm text-slate-400">{item.description}</div>
                 </div>
                 {#if "shortcut" in item && item.shortcut}
-                  <div class="suggestion-shortcut">{item.shortcut}</div>
+                  <div class="text-xs text-slate-600 bg-white/5 py-0.5 px-1.5 rounded">{item.shortcut}</div>
                 {:else if item.type === "chat"}
-                  <div class="suggestion-meta">
+                  <div class="text-slate-600 transition-all duration-200 group-hover:text-purple-500 group-hover:translate-x-0.5">
                     <Icon icon="lucide:arrow-right" class="w-4 h-4" />
                   </div>
                 {/if}
@@ -188,399 +212,22 @@
     </div>
 
     <!-- Quick Actions -->
-    <div class="actions-section">
-      <div class="actions-grid">
+    <div class="mb-12 max-md:pb-8">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 max-w-[500px] mx-auto max-md:grid-cols-1">
         {#each quickActions as action}
           <button
-            class="action-card {action.primary ? 'primary' : 'secondary'}"
+            class="{getActionCardStyles(action.primary)}"
             onclick={action.action}
           >
-            <div class="action-icon">
+            <div class="text-white">
               <Icon icon={action.icon} class="w-6 h-6" />
             </div>
-            <span class="action-label">{action.label}</span>
+            <span class="text-white font-medium text-sm">{action.label}</span>
           </button>
         {/each}
       </div>
     </div>
 
-    <!-- Feature Hints -->
-    <div class="hints-section">
-      <div class="hints-grid">
-        <div class="hint-item">
-          <Icon icon="lucide:zap" class="w-4 h-4 text-blue-400" />
-          <span>Quick commands</span>
-        </div>
-        <div class="hint-item">
-          <Icon icon="lucide:keyboard" class="w-4 h-4 text-green-400" />
-          <span>Keyboard shortcuts</span>
-        </div>
-        <div class="hint-item">
-          <Icon icon="lucide:clock" class="w-4 h-4 text-purple-400" />
-          <span>Chat history</span>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
-<style>
-  .home-container {
-    position: relative;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    font-family: var(--font-mono);
-    overflow: hidden;
-  }
-
-  .background-grid {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-        rgba(255, 255, 255, 0.02) 1px,
-        transparent 1px
-      ),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 20s linear infinite;
-  }
-
-  .background-gradient {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at 50% 50%,
-      rgba(59, 130, 246, 0.1) 0%,
-      transparent 50%
-    );
-  }
-
-  @keyframes grid-move {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(50px, 50px);
-    }
-  }
-
-  .content-wrapper {
-    position: relative;
-    z-index: 1;
-    max-width: 800px;
-    width: 100%;
-    transition: all 0.6s ease-out;
-  }
-
-  .animate-in {
-    animation: fadeInUp 0.8s ease-out;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .header-section {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .logo-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .logo-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 20px;
-    color: white;
-    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
-    animation: float 3s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  .main-title {
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    font-weight: 700;
-    background: linear-gradient(135deg, #ffffff, #94a3b8);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-
-  .subtitle {
-    font-size: 1.25rem;
-    color: #94a3b8;
-    margin: 0;
-    font-weight: 400;
-  }
-
-  .search-section {
-    margin-bottom: 3rem;
-  }
-
-  .search-container {
-    position: relative;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .search-wrapper.focused {
-    border-color: #3b82f6;
-    background: rgba(59, 130, 246, 0.1);
-    box-shadow: 0 0 32px rgba(59, 130, 246, 0.2);
-  }
-
-  .search-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 1.125rem;
-    color: white;
-    font-family: inherit;
-  }
-
-  .search-input::placeholder {
-    color: #64748b;
-  }
-
-  .suggestions-dropdown {
-    position: absolute;
-    bottom: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(30, 30, 30, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    margin-bottom: 8px;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.2s ease-out;
-  }
-
-  @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .suggestion-item {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 12px 16px;
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    text-align: left;
-  }
-
-  .suggestion-item:hover {
-    background: rgba(59, 130, 246, 0.1);
-  }
-
-  .suggestion-icon {
-    margin-right: 12px;
-    color: #3b82f6;
-  }
-
-  .suggestion-content {
-    flex: 1;
-  }
-
-  .suggestion-label {
-    font-weight: 500;
-    margin-bottom: 2px;
-  }
-
-  .suggestion-desc {
-    font-size: 0.875rem;
-    color: #94a3b8;
-  }
-
-  .suggestion-shortcut {
-    font-size: 0.75rem;
-    color: #64748b;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 2px 6px;
-    border-radius: 4px;
-  }
-
-  .suggestion-meta {
-    color: #64748b;
-    transition: all 0.2s ease;
-  }
-
-  .suggestion-chat {
-    border-left: 3px solid rgba(139, 92, 246, 0.3);
-  }
-
-  .suggestion-chat:hover {
-    border-left-color: rgba(139, 92, 246, 0.6);
-    background: rgba(139, 92, 246, 0.1);
-  }
-
-  .suggestion-chat:hover .suggestion-meta {
-    color: #8b5cf6;
-    transform: translateX(2px);
-  }
-
-  .suggestion-command {
-    border-left: 3px solid rgba(59, 130, 246, 0.3);
-  }
-
-  .suggestion-command:hover {
-    border-left-color: rgba(59, 130, 246, 0.6);
-  }
-
-  .actions-section {
-    margin-bottom: 3rem;
-  }
-
-  .actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .action-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .action-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  }
-
-  .action-card.primary {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.2),
-      rgba(139, 92, 246, 0.2)
-    );
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .action-card.primary:hover {
-    background: linear-gradient(
-      135deg,
-      rgba(59, 130, 246, 0.3),
-      rgba(139, 92, 246, 0.3)
-    );
-  }
-
-  .action-icon {
-    color: white;
-  }
-
-  .action-label {
-    color: white;
-    font-weight: 500;
-    font-size: 0.875rem;
-  }
-
-  .hints-section {
-    text-align: center;
-  }
-
-  .hints-grid {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .hint-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: #94a3b8;
-    font-size: 0.875rem;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .home-container {
-      padding: 1rem;
-    }
-
-    .content-wrapper {
-      max-width: 100%;
-    }
-
-    .actions-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .hints-grid {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .search-wrapper {
-      padding: 0.875rem 1rem;
-    }
-  }
-</style>
