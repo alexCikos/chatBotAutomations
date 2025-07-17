@@ -76,7 +76,9 @@ function createChatWindowStore() {
     userID: string
   ) {
     try {
-      console.log(`Calling server-side tool execution for: ${tool.toolName}`, {
+      console.log(`Calling server-side tool execution for: ${tool.toolName}`);
+      console.log('Tool object received:', tool);
+      console.log('Request data:', {
         message: userMessage,
         toolId: tool.toolId,
         userId: userID,
