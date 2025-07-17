@@ -20,25 +20,25 @@
   });
 </script>
 
-<div class="search-page-container">
+<div class="relative min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 flex items-center justify-center p-8 font-mono overflow-x-hidden max-md:p-4">
   <!-- Background Elements -->
-  <div class="background-grid"></div>
-  <div class="background-gradient"></div>
+  <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[length:50px_50px]"></div>
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(139,92,246,0.1)_0%,transparent_50%)]"></div>
 
   <!-- Main Content -->
-  <div class="search-content {mounted ? 'animate-in' : 'opacity-0'}">
+  <div class="relative z-[1] max-w-[900px] w-full transition-all duration-[600ms] ease-out {mounted ? 'opacity-100' : 'opacity-0'}">
     <!-- Header Section -->
-    <div class="search-header">
-      <div class="header-icon">
+    <div class="text-center mb-8">
+      <div class="flex items-center justify-center w-15 h-15 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl text-white mx-auto mb-4 shadow-[0_8px_32px_rgba(139,92,246,0.3)]">
         <Icon icon="lucide:search" class="w-8 h-8" />
       </div>
-      <h1 class="search-title">Search your chats</h1>
-      <p class="search-subtitle">Find your previous conversations</p>
+      <h1 class="text-[clamp(2rem,4vw,3rem)] font-bold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent m-0 mb-2 tracking-[-0.02em]">Search your chats</h1>
+      <p class="text-lg text-slate-400 m-0">Find your previous conversations</p>
     </div>
 
     <!-- Search Section -->
-    <div class="search-input-section">
-      <div class="search-input-wrapper {inputFocused ? 'focused' : ''}">
+    <div class="mb-8 max-md:mb-2 max-[480px]:mb-3">
+      <div class="relative flex items-center bg-white/5 border-2 border-white/10 rounded-2xl py-4 px-6 transition-all duration-300 backdrop-blur-md {inputFocused ? 'border-purple-500 bg-purple-500/10 shadow-[0_0_32px_rgba(139,92,246,0.2)]' : ''} max-md:py-3.5 max-md:px-4">
         <Icon icon="lucide:search" class="w-5 h-5 text-gray-400 mr-3" />
         <input
           type="text"
@@ -47,11 +47,11 @@
           onblur={() => (inputFocused = false)}
           onkeydown={(e) => e.key === "Enter" && handleEnter($filteredChats)}
           bind:value={$searchTerm}
-          class="search-input-field"
+          class="flex-1 bg-transparent border-none outline-none text-lg text-white font-inherit placeholder:text-slate-600"
         />
         {#if $searchTerm}
           <button
-            class="clear-search-btn"
+            class="bg-white/10 border-none rounded-lg p-1.5 text-slate-400 cursor-pointer transition-all duration-200 ml-2 hover:bg-white/20 hover:text-white"
             onclick={() => ($searchTerm = "")}
             aria-label="Clear search"
           >
@@ -63,64 +63,64 @@
 
     <!-- Results Section -->
     {#if $searchTerm.trim() !== ""}
-      <div class="results-section">
+      <div class="">
         {#if $filteredChats.length > 0}
-          <div class="results-header">
-            <span class="results-count"
+          <div class="mb-4">
+            <span class="text-slate-400 text-sm font-medium"
               >{$filteredChats.length} chat{$filteredChats.length !== 1
                 ? "s"
                 : ""} found</span
             >
           </div>
-          <div class="results-grid">
+          <div class="grid gap-3">
             {#each $filteredChats as chat}
               <a
-                class="chat-result-card"
+                class="flex items-center p-4 bg-white/5 border border-white/10 rounded-xl no-underline text-white transition-all duration-300 backdrop-blur-md hover:bg-purple-500/10 hover:border-purple-500/30 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(139,92,246,0.2)] group"
                 href={"/chat/" + chat.id}
                 title={chat.title}
               >
-                <div class="chat-result-icon">
+                <div class="text-purple-500 mr-4 flex-shrink-0">
                   <Icon icon="lucide:message-circle" class="w-5 h-5" />
                 </div>
-                <div class="chat-result-content">
-                  <div class="chat-result-title">{chat.title}</div>
+                <div class="flex-1">
+                  <div class="font-medium mb-1 text-white">{chat.title}</div>
                   {#if chat.description}
-                    <div class="chat-result-description">{chat.description}</div>
+                    <div class="text-sm text-slate-300 mb-1 leading-[1.4] line-clamp-2">{chat.description}</div>
                   {/if}
-                  <div class="chat-result-date">
+                  <div class="text-sm text-slate-400">
                     {new Date(chat.createdAt).toLocaleDateString()}
                   </div>
                 </div>
-                <div class="chat-result-arrow">
+                <div class="text-slate-600 ml-4 transition-all duration-200 group-hover:text-purple-500 group-hover:translate-x-1">
                   <Icon icon="lucide:arrow-right" class="w-4 h-4" />
                 </div>
               </a>
             {/each}
           </div>
         {:else}
-          <div class="no-results">
-            <div class="no-results-icon">
+          <div class="text-center py-12 px-4">
+            <div class="text-slate-600 mb-4">
               <Icon icon="lucide:search-x" class="w-12 h-12" />
             </div>
-            <h3 class="no-results-title">No chats found</h3>
-            <p class="no-results-text">
+            <h3 class="text-2xl font-semibold text-white m-0 mb-2">No chats found</h3>
+            <p class="text-slate-400 m-0">
               Try adjusting your search terms or browse all chats.
             </p>
           </div>
         {/if}
       </div>
     {:else}
-      <div class="search-tips">
-        <div class="tips-grid">
-          <div class="tip-item">
+      <div class="text-center py-8 max-md:py-0 max-md:pb-8">
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 mt-8 max-md:grid-cols-1">
+          <div class="flex flex-col items-center gap-3 p-6 bg-white/5 border border-white/10 rounded-xl text-slate-400 text-sm text-center backdrop-blur-md">
             <Icon icon="lucide:type" class="w-5 h-5 text-blue-400" />
             <span>Type keywords from your conversations</span>
           </div>
-          <div class="tip-item">
+          <div class="flex flex-col items-center gap-3 p-6 bg-white/5 border border-white/10 rounded-xl text-slate-400 text-sm text-center backdrop-blur-md">
             <Icon icon="lucide:calendar" class="w-5 h-5 text-green-400" />
             <span>Search by chat titles or topics</span>
           </div>
-          <div class="tip-item">
+          <div class="flex flex-col items-center gap-3 p-6 bg-white/5 border border-white/10 rounded-xl text-slate-400 text-sm text-center backdrop-blur-md">
             <Icon icon="lucide:zap" class="w-5 h-5 text-purple-400" />
             <span>Find specific discussions quickly</span>
           </div>
@@ -130,330 +130,3 @@
   </div>
 </div>
 
-<style>
-  .search-page-container {
-    position: relative;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    font-family: var(--font-mono);
-    overflow-x: hidden;
-  }
-
-  .background-grid {
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-        rgba(255, 255, 255, 0.02) 1px,
-        transparent 1px
-      ),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: grid-move 20s linear infinite;
-  }
-
-  .background-gradient {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      circle at 30% 70%,
-      rgba(139, 92, 246, 0.1) 0%,
-      transparent 50%
-    );
-  }
-
-  @keyframes grid-move {
-    0% {
-      transform: translate(0, 0);
-    }
-    100% {
-      transform: translate(50px, 50px);
-    }
-  }
-
-  .search-content {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    width: 100%;
-    transition: all 0.6s ease-out;
-  }
-
-  .animate-in {
-    animation: fadeInUp 0.8s ease-out;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .search-header {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-
-  .header-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
-    border-radius: 16px;
-    color: white;
-    margin: 0 auto 1rem;
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
-  }
-
-  .search-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    background: linear-gradient(135deg, #ffffff, #94a3b8);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin: 0 0 0.5rem 0;
-    letter-spacing: -0.02em;
-  }
-
-  .search-subtitle {
-    font-size: 1.125rem;
-    color: #94a3b8;
-    margin: 0;
-  }
-
-  .search-input-section {
-    margin-bottom: 2rem;
-  }
-
-  .search-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .search-input-wrapper.focused {
-    border-color: #8b5cf6;
-    background: rgba(139, 92, 246, 0.1);
-    box-shadow: 0 0 32px rgba(139, 92, 246, 0.2);
-  }
-
-  .search-input-field {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 1.125rem;
-    color: white;
-    font-family: inherit;
-  }
-
-  .search-input-field::placeholder {
-    color: #64748b;
-  }
-
-  .clear-search-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 8px;
-    padding: 6px;
-    color: #94a3b8;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-left: 8px;
-  }
-
-  .clear-search-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-  }
-
-  .results-section {
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .results-header {
-    margin-bottom: 1rem;
-  }
-
-  .results-count {
-    color: #94a3b8;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .results-grid {
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .chat-result-card {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    text-decoration: none;
-    color: white;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .chat-result-card:hover {
-    background: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.2);
-  }
-
-  .chat-result-icon {
-    color: #8b5cf6;
-    margin-right: 1rem;
-    flex-shrink: 0;
-  }
-
-  .chat-result-content {
-    flex: 1;
-  }
-
-  .chat-result-title {
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-    color: white;
-  }
-
-  .chat-result-description {
-    font-size: 0.875rem;
-    color: #cbd5e1;
-    margin-bottom: 0.25rem;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .chat-result-date {
-    font-size: 0.875rem;
-    color: #94a3b8;
-  }
-
-  .chat-result-arrow {
-    color: #64748b;
-    margin-left: 1rem;
-    transition: all 0.2s ease;
-  }
-
-  .chat-result-card:hover .chat-result-arrow {
-    color: #8b5cf6;
-    transform: translateX(4px);
-  }
-
-  .no-results {
-    text-align: center;
-    padding: 3rem 1rem;
-  }
-
-  .no-results-icon {
-    color: #64748b;
-    margin-bottom: 1rem;
-  }
-
-  .no-results-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: white;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .no-results-text {
-    color: #94a3b8;
-    margin: 0;
-  }
-
-  .search-tips {
-    text-align: center;
-    padding: 2rem 0;
-  }
-
-  .tips-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-
-  .tip-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    color: #94a3b8;
-    font-size: 0.875rem;
-    text-align: center;
-    backdrop-filter: blur(10px);
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .search-page-container {
-      padding: 1rem;
-    }
-
-    .search-input-section {
-      margin-bottom: 0.5rem; /* Reduced from 2rem to 1rem for mobile */
-    }
-
-    .search-tips {
-      padding: 0;
-    }
-
-    .tips-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .search-input-wrapper {
-      padding: 0.875rem 1rem;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .search-header {
-      margin-bottom: 1.5rem; /* Reduced from 2rem to 1.5rem for mobile */
-    }
-
-    .search-input-section {
-      margin-bottom: 0.75rem; /* Even smaller margin for very small screens */
-    }
-  }
-</style>
